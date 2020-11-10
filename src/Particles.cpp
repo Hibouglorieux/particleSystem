@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:32 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/07 18:41:31 by nathan           ###   ########.fr       */
+/*   Updated: 2020/11/10 03:46:26 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ GLuint Particles::VAO = 0;
 GLuint Particles::VBO = 0;
 cl_mem Particles::clBuffer = NULL;
 Shader* Particles::shader = nullptr;
-Camera Particles::camera = {};
+Camera Particles::camera = {0, 0, 300};
 Matrix Particles::projMat = Matrix::createProjMatrix(FOV, SCREEN_WIDTH / SCREEN_HEIGHT, NEAR, FAR);
 
 void Particles::initialize()
@@ -74,50 +74,54 @@ void Particles::initializeParticles()
 	clEnqueueAcquireGLObjects(queue, 1, &clBuffer, 0, 0, NULL);
 
     cl_mem seedBuff = clCreateBuffer(clProgram::getContext(), CL_MEM_READ_WRITE, 
-             sizeof(int), NULL, &errCode);
+             sizeof(unsigned long), NULL, &errCode);
 	clProgram::checkError("clCreateBuffer", errCode);
-	size_t seed = SEED;
-    errCode = clEnqueueWriteBuffer(queue, seedBuff, CL_TRUE, 0,
-            sizeof(int), &seed, 0, NULL, NULL);
-	clProgram::checkError("clEnqueueWriteBuffer", errCode);
+    cl_mem nbParticlesBuff = clCreateBuffer(clProgram::getContext(), CL_MEM_READ_ONLY, 
+             sizeof(unsigned int), NULL, &errCode);
+	clProgram::checkError("clCreateBuffer", errCode);
 
-    errCode = clSetKernelArg(kernel, 0, sizeof(clBuffer), &clBuffer);
-	clProgram::checkError("clSetKernelArg", errCode);
-    errCode = clSetKernelArg(kernel, 1, sizeof(seedBuff), &seedBuff);
+	unsigned long seed = SEED;
+    callCL(clEnqueueWriteBuffer(queue, seedBuff, CL_TRUE, 0,
+            sizeof(unsigned long), &seed, 0, NULL, NULL));
+	unsigned int nbParticles = NB_PARTICLES;
+    callCL(clEnqueueWriteBuffer(queue, nbParticlesBuff, CL_TRUE, 0,
+            sizeof(unsigned int), &nbParticles, 0, NULL, NULL));
 
-	size_t globalWorkSize = NB_PARTICLES;
-	size_t localWorkSize = 2; //TODO change that ?
+    callCL(clSetKernelArg(kernel, 0, sizeof(clBuffer), &clBuffer));
+    callCL(clSetKernelArg(kernel, 1, sizeof(seedBuff), &seedBuff));
+	callCL(clSetKernelArg(kernel, 2, sizeof(nbParticlesBuff), &nbParticlesBuff));
+
+	size_t globalWorkSize = 1;
+	size_t localWorkSize = 1; //TODO change that ?
 	size_t offset = 0;
 	//TODO 
 	//1 - initialize small amount of particle with + only number
 	//2 - change x y z with random numbers for other particles
 	//3 - reverse x y and/or z to fill particles in 7 other square of space
-    errCode = clEnqueueNDRangeKernel(queue, kernel, 1, &offset, 
-            &globalWorkSize, &localWorkSize, 0, NULL, NULL);
-	clProgram::checkError("clEnqueueNDRangeKernel", errCode);
+    callCL(clEnqueueNDRangeKernel(queue, kernel, 1, &offset, 
+            &globalWorkSize, &localWorkSize, 0, NULL, NULL));
 
-	errCode = clEnqueueReleaseGLObjects(queue, 1, &clBuffer, 0, 0, NULL);
-	clProgram::checkError("clEnqueueReleaseGLObjects", errCode);
+	callCL(clEnqueueReleaseGLObjects(queue, 1, &clBuffer, 0, 0, NULL));
 
-	errCode = clFinish(queue); // need to make sure buffer is released for openGL
-	clProgram::checkError("clFinish", errCode);
-    errCode = clReleaseMemObject(seedBuff);
-	clProgram::checkError("clReleaseMemObject", errCode);
-    errCode = clReleaseKernel(kernel);
-	clProgram::checkError("clReleaseKernel", errCode);
-    errCode = clReleaseProgram(ini);
-	clProgram::checkError("clReleaseProgram", errCode);
+	callCL(clFinish(queue));// need to make sure buffer is released for openGL
+
+	callCL(clReleaseMemObject(seedBuff));
+	callCL(clReleaseMemObject(nbParticlesBuff));
+    callCL(clReleaseKernel(kernel));
+    callCL(clReleaseProgram(ini));
 }
 
-void Particles::callCLFunc(cl_int errCode, std::string funcCall, std::string line)
+void Particles::callCLFunc(cl_int errCode, std::string funcCall, int line)
 {
-	clProgram::checkError(line + funcCall, errCode);
+	clProgram::checkError(funcCall + std::string(" at line ") + std::to_string(line), errCode);
 }
 
 void Particles::draw()
 {
 	std::array<float, 4> color = PARTICLE_COLOR;
+	shader->use();
 	Matrix precalcMat = projMat * camera.getMatrix();
+	glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "camera"), 1, GL_TRUE, camera.getMatrix().exportForGL());
     glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "precalcMat"), 1, GL_TRUE, precalcMat.exportForGL());
     glUniform4fv(glGetUniformLocation(shader->getID(), "myColor"), 1, &color.front());
     glBindVertexArray(VAO);

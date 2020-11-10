@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/02 01:10:32 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/04 15:49:35 by nathan           ###   ########.fr       */
+/*   Updated: 2020/11/10 03:00:37 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # define CAMERA_CLASS_H
 #include "Matrix.hpp"
 #include "Vec3.hpp"
+#include <utility>
 
 #define Y_MOVE_SPEED 0.2f
 
@@ -34,6 +35,7 @@ public:
 	void rotate(double x, double y);
 	Vec3 getDirection() const;
 	Matrix getMatrix() const;
+	std::pair<Vec3, Vec3> unProject(float mouseX, float mouseY, Matrix projMat);
 private:
 	bool hasTarget;
 	Vec3 target;

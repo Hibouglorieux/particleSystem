@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:30 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/06 23:45:24 by nathan           ###   ########.fr       */
+/*   Updated: 2020/11/10 03:43:58 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 
 #include <vector>
 #include "appWindow.hpp"
+//TMP
+#include "Line.hpp"
 
 class Loop {
 public:
@@ -30,6 +32,7 @@ private:
 	static unsigned char frameCount;
 	static double mouseX, mouseY;
 	const static double refreshingRate;
+	static std::vector<Line*> lines;
 };
 
 #endif

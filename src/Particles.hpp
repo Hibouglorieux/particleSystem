@@ -6,17 +6,17 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:37 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/07 18:38:21 by nathan           ###   ########.fr       */
+/*   Updated: 2020/11/10 03:03:36 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #ifndef PARTICLES_CLASS_H
 # define PARTICLES_CLASS_H
-# define NB_PARTICLES 6
-# define PARTICLE_SIZE 10.f
+# define NB_PARTICLES 1'000'000
+# define PARTICLE_SIZE 1.f
 # define PARTICLE_COLOR {0.1f, 0.9f, 0.1f, 1.0}
-# define SEED 42
+# define SEED 42L
 # define callCL(x) callCLFunc(x, #x, __LINE__)
 #include <CL/cl.h>
 #include <GL/glew.h>
@@ -34,8 +34,9 @@ public:
 	static void draw();
 	static Camera& getCamera(){return camera;}
 	static void clear();
+	static Matrix getProjMat() {return projMat;}// TODO remove
 private:
-	static void callCLFunc(cl_int errCode, std::string funcCall, std::string line);
+	static void callCLFunc(cl_int errCode, std::string funcCall, int line);
 	static void initializeBuffers();
 	static bool initialized;
 	static GLuint VAO, VBO;

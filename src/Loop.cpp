@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:25 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/07 16:26:29 by nathan           ###   ########.fr       */
+/*   Updated: 2020/11/10 03:48:17 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ double Loop::mouseX = 0.0;
 double Loop::mouseY = 0.0;
 double Loop::fpsRefreshTime = 0.0;
 unsigned char Loop::frameCount = 0;
+std::vector<Line*> Loop::lines = {};
 
 #define SEC_TO_MICROSEC 1000000
 #define CAMERA_MOUVEMENT_SPEED 0.3f
@@ -56,6 +57,8 @@ void Loop::loop()
 //		glDisable(GL_DEPTH_TEST);
 //		glDisable(GL_STENCIL_TEST);
 		Particles::draw();	
+		for (Line* line : lines)
+			line->draw();
 		glFinish();
 
 		glfwSwapBuffers(appWindow::getWindow());
@@ -75,6 +78,9 @@ void Loop::loop()
 			fpsRefreshTime = currentTimer;
 		}
 	}
+	for (Line* line : lines)
+		delete line;
+	lines.clear();
 }
 
 void Loop::processInput()
@@ -103,7 +109,10 @@ void Loop::processInput()
 	double oldMouseX = mouseX;
 	double oldMouseY = mouseY;
 	glfwGetCursorPos(appWindow::getWindow(), &mouseX, &mouseY);
-	Particles::getCamera().rotate(mouseX - oldMouseX, mouseY - oldMouseY);
+	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+		Particles::getCamera().rotate(mouseX - oldMouseX, mouseY - oldMouseY);
+	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		lines.push_back(new Line(mouseX, mouseY));
 }
 
 void Loop::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)

@@ -10,6 +10,7 @@ FILES = main.cpp \
 		Vec3.cpp \
 		clProgram.cpp \
 		Particles.cpp \
+		Line.cpp \
 		appWindow.cpp
 
 OBJ = $(addprefix obj/,$(FILES:.cpp=.o))

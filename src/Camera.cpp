@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/02 01:10:29 by nathan            #+#    #+#             */
-/*   Updated: 2020/10/13 09:23:51 by nathan           ###   ########.fr       */
+/*   Updated: 2020/11/10 04:03:38 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,4 +166,37 @@ void Camera::actualizeView()
 		rotMat *= Matrix::createRotationMatrix(Matrix::RotationDirection::Y, dir.y);
 		this->view = rotMat * Matrix::createTranslationMatrix(-pos);
 	}
+}
+
+std::pair<Vec3, Vec3> Camera::unProject(float mouseX, float mouseY, Matrix projMat)
+{
+	//https://doxygen.reactos.org/d2/d0d/project_8c_source.html
+	Matrix finalMat;
+	Vec3 point1, point2;
+
+	mouseY = SCREEN_HEIGHT - mouseY;
+
+	//finalMat = (getMatrix() * projMat).invert();
+	finalMat = (projMat * getMatrix()) .invert();
+
+	point1 = {mouseX, mouseY, -0.1f};//TODO a tester
+	point2 = {mouseX, mouseY, 10.f};
+
+	point1.x = point1.x / SCREEN_WIDTH;
+	point2.x = point2.x / SCREEN_WIDTH;
+	point1.y = point1.y / SCREEN_HEIGHT;
+	point2.y = point2.y / SCREEN_HEIGHT;
+#define FOV 60.0f
+#define NEAR 0.1f
+#define FAR 1000.0f
+    point1.z = (point1.z - NEAR) / (FAR - NEAR);
+    //point2.z = (point2.z - NEAR) / (FAR - NEAR);
+
+	point1 = point1 * 2 - Vec3(1.0f, 1.0f, 1.0f);
+	point2 = point2 * 2 - Vec3(1.0f, 1.0f, 1.0f);
+	point1 = finalMat * point1;
+	point2 = finalMat * point2;
+	//point1.print();
+	//point2.print();
+	return std::make_pair(point1, point2);
 }
