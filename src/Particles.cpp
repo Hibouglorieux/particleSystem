@@ -6,11 +6,12 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:32 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/10 03:46:26 by nathan           ###   ########.fr       */
+/*   Updated: 2020/11/11 15:07:18 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Particles.hpp"
+#include <utility>
 
 #define FOV 60.0f
 #define NEAR 0.1f
@@ -23,6 +24,8 @@ cl_mem Particles::clBuffer = NULL;
 Shader* Particles::shader = nullptr;
 Camera Particles::camera = {0, 0, 300};
 Matrix Particles::projMat = Matrix::createProjMatrix(FOV, SCREEN_WIDTH / SCREEN_HEIGHT, NEAR, FAR);
+float Particles::mouseX = 0.0f;
+float Particles::mouseY = 0.0f;
 
 void Particles::initialize()
 {
@@ -116,13 +119,33 @@ void Particles::callCLFunc(cl_int errCode, std::string funcCall, int line)
 	clProgram::checkError(funcCall + std::string(" at line ") + std::to_string(line), errCode);
 }
 
+void Particles::setCurrentMouse(float mouse_x, float mouse_y)
+{
+	mouseX = mouse_x;
+	mouseY = mouse_y;
+}
+
 void Particles::draw()
 {
 	std::array<float, 4> color = PARTICLE_COLOR;
+	Vec3 lineDir, lineOrigin;
+	std::pair<Vec3, Vec3> points = camera.unProject(mouseX, mouseY, projMat);
+	lineOrigin = std::get<0>(points);
+	lineDir = lineOrigin - std::get<1>(points);
+	lineDir = lineDir.getNormalized();
+	float vec3Data[6];
+	for (int i = 0; i < 3; i++)
+	{
+		vec3Data[i] = lineOrigin[i];
+		vec3Data[i + 3] = lineDir[i];
+	}
+
 	shader->use();
 	Matrix precalcMat = projMat * camera.getMatrix();
 	glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "camera"), 1, GL_TRUE, camera.getMatrix().exportForGL());
     glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "precalcMat"), 1, GL_TRUE, precalcMat.exportForGL());
+	glUniform3fv(glGetUniformLocation(shader->getID(), "mouseLineOrigin"), 1, vec3Data);
+	glUniform3fv(glGetUniformLocation(shader->getID(), "mouseLineDir"), 1, &vec3Data[3]);
     glUniform4fv(glGetUniformLocation(shader->getID(), "myColor"), 1, &color.front());
     glBindVertexArray(VAO);
     glDrawArrays(GL_POINTS, 0, NB_PARTICLES);

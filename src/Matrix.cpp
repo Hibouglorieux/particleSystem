@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/25 11:07:40 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/09 16:08:18 by nathan           ###   ########.fr       */
+/*   Updated: 2020/11/11 14:37:05 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,18 +151,16 @@ void Matrix::print() const
 Vec3 Matrix::vectorMult(const Vec3 vec) const
 {
 	Vec3 newVec;
+	float w = 0.0f;
 	for (int i = 0; i < 3; 	i++)	
 		for (int j = 0; j < 4; j++)
 		{
 			newVec[i] += this->data[i][j] * (j > 2 ? 1 : vec.at(j));
-				/*
-			float v = j == 0 ? vec.x : j == 1 ? vec.y : vec.z;
-			newVec.x += this->data[0][j] * v;
-			newVec.y += this->data[1][j] * v;
-			newVec.z += this->data[2][j] * v;
-			*/
 		}
-	return newVec;
+
+	for (int j = 0; j < 4; j++)
+		w += this->data[3][j] * (j > 2 ? 1 : vec.at(j));
+	return (newVec * (1 / w));
 }
 
 Matrix::~Matrix()
@@ -288,7 +286,8 @@ Matrix Matrix::invert()
 
 	det = m[0][0]*inv[0][0] + m[0][1]*inv[1][0] + m[0][2]*inv[2][0] + m[0][3]*inv[3][0];
 	if (det == 0)
-		return *this;//TODO this cannot happen, right ? :)
+		exit(0);
+		//return *this;//TODO this cannot happen, right ? :)
 
 	det = 1.0f / det;
 

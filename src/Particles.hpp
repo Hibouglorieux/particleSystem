@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:37 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/10 03:03:36 by nathan           ###   ########.fr       */
+/*   Updated: 2020/11/11 14:41:01 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ public:
 	static Camera& getCamera(){return camera;}
 	static void clear();
 	static Matrix getProjMat() {return projMat;}// TODO remove
+	static void setCurrentMouse(float mouse_x, float mouse_y);
 private:
 	static void callCLFunc(cl_int errCode, std::string funcCall, int line);
 	static void initializeBuffers();
@@ -44,6 +45,7 @@ private:
 	static Camera camera;
 	static Matrix projMat;
 	static Shader* shader;
+	static float mouseX, mouseY;
 };
 
 #endif

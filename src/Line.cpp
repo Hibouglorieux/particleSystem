@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/10 03:23:12 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/10 03:48:28 by nathan           ###   ########.fr       */
+/*   Updated: 2020/11/11 15:24:09 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,19 +22,25 @@ Line::Line(float mouseX, float mouseY)
 void Line::initializeBuffers()
 {
 	float data[6];
-	data[0] = std::get<0>(points).x;
-	data[1] = std::get<0>(points).y;
-	data[2] = std::get<0>(points).z;
-	data[3] = std::get<1>(points).x;
-	data[4] = std::get<1>(points).y;
-	data[5] = std::get<1>(points).z;
+	Vec3 cameraPos = Particles::getCamera().getPos();
+	Vec3 point1, point2, dir;
+	point1 = std::get<0>(points);
+	point2 = std::get<1>(points);
+	dir	= point1 - point2;
+	dir = dir * 60;// make a good line
+	data[0] = point1.x;
+	data[1] = point1.y;
+	data[2] = point1.z;
+	data[3] = point1.x + dir.x;
+	data[4] = point1.y + dir.y;
+	data[5] = point1.z + dir.z;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
   
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * 2, &data, GL_STATIC_DRAW);//TODO test draw / read / copy
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * 2, &data, GL_STATIC_DRAW);
 
 
     glEnableVertexAttribArray(0);	
@@ -51,7 +57,11 @@ void Line::draw()
     glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "precalcMat"), 1, GL_TRUE, precalcMat.exportForGL());
     glUniform4fv(glGetUniformLocation(shader->getID(), "myColor"), 1, &color.front());
     glBindVertexArray(VAO);
-    glDrawArrays(GL_LINES, 0, 2);
+	glDrawArrays(GL_LINES, 0, 2);
+	
+	glPointSize(10.0f);
+    glDrawArrays(GL_POINTS, 0, 2);
+	glPointSize(1.f);
 }
 
 Line::~Line()

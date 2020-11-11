@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/02 01:10:29 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/10 04:03:38 by nathan           ###   ########.fr       */
+/*   Updated: 2020/11/11 03:52:18 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,11 @@ Camera::Camera(Vec3 position)
 	dir = {0, 0, 0};
 	lookAt();
 	actualizeView();
+}
+
+Vec3 Camera::getPos() const
+{
+	return pos;
 }
 
 void Camera::reset()
@@ -177,26 +182,32 @@ std::pair<Vec3, Vec3> Camera::unProject(float mouseX, float mouseY, Matrix projM
 	mouseY = SCREEN_HEIGHT - mouseY;
 
 	//finalMat = (getMatrix() * projMat).invert();
-	finalMat = (projMat * getMatrix()) .invert();
+	//finalMat = (projMat * getMatrix()).invert();
+	finalMat = projMat.invert();
+	//(projMat * getMatrix()).invert().print();
 
-	point1 = {mouseX, mouseY, -0.1f};//TODO a tester
-	point2 = {mouseX, mouseY, 10.f};
+	point1 = {mouseX, mouseY, 0.9f};
+	point2 = {mouseX, mouseY, -0.9f};
 
-	point1.x = point1.x / SCREEN_WIDTH;
-	point2.x = point2.x / SCREEN_WIDTH;
-	point1.y = point1.y / SCREEN_HEIGHT;
-	point2.y = point2.y / SCREEN_HEIGHT;
+	point1.x = point1.x / (SCREEN_WIDTH * 0.5f) - 1.0f;;
+	point2.x = point2.x / (SCREEN_WIDTH * 0.5f) - 1.0f;;
+	point1.y = point1.y / (SCREEN_HEIGHT * 0.5f) - 1.0f;;
+	point2.y = point2.y / (SCREEN_HEIGHT * 0.5f) - 1.0f;;
+
+/*	ballecouille de la pos de Z
 #define FOV 60.0f
 #define NEAR 0.1f
 #define FAR 1000.0f
     point1.z = (point1.z - NEAR) / (FAR - NEAR);
-    //point2.z = (point2.z - NEAR) / (FAR - NEAR);
+    point2.z = (point2.z - NEAR) / (FAR - NEAR);
+	*/
+	
 
-	point1 = point1 * 2 - Vec3(1.0f, 1.0f, 1.0f);
-	point2 = point2 * 2 - Vec3(1.0f, 1.0f, 1.0f);
 	point1 = finalMat * point1;
 	point2 = finalMat * point2;
-	//point1.print();
-	//point2.print();
+
+	point1 = getMatrix().invert() * point1;
+	point2 = getMatrix().invert() * point2;
+
 	return std::make_pair(point1, point2);
 }

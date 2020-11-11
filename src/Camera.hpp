@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/02 01:10:32 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/10 03:00:37 by nathan           ###   ########.fr       */
+/*   Updated: 2020/11/10 16:46:36 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ public:
 	void moveDown(float distance = Y_MOVE_SPEED);
 	void rotate(double x, double y);
 	Vec3 getDirection() const;
+	Vec3 getPos() const;// TODO maybe test with a matrix.getTranslationVector instead for lookAt
 	Matrix getMatrix() const;
 	std::pair<Vec3, Vec3> unProject(float mouseX, float mouseY, Matrix projMat);
 private:

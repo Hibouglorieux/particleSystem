@@ -39,7 +39,7 @@ float3 randomSquare(__global ulong *seed)
 	randomisedFloat.x = (float)randomNum.x / (float)(0xFFFFFFFF / MAX_NUMBER);
 	randomisedFloat.y = (float)randomNum.y / (float)(0xFFFFFFFF / MAX_NUMBER);
 	randomisedFloat.z = (float)randomNum.z / (float)(0xFFFFFFFF / MAX_NUMBER);
-	//randomisedFloat = randomCircle(randomisedFloat, seed);
+	randomisedFloat = randomCircle(randomisedFloat, seed);
 	return randomisedFloat;
 }
 

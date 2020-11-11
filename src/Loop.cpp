@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:25 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/10 03:48:17 by nathan           ###   ########.fr       */
+/*   Updated: 2020/11/11 15:04:20 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,8 +109,10 @@ void Loop::processInput()
 	double oldMouseX = mouseX;
 	double oldMouseY = mouseY;
 	glfwGetCursorPos(appWindow::getWindow(), &mouseX, &mouseY);
+	Particles::setCurrentMouse(mouseX, mouseY);
 	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		Particles::getCamera().rotate(mouseX - oldMouseX, mouseY - oldMouseY);
+	// VISUAL RAYCASTING
 	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		lines.push_back(new Line(mouseX, mouseY));
 }
