@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:25 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/11 15:04:20 by nathan           ###   ########.fr       */
+/*   Updated: 2020/11/29 05:58:40 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ void Loop::loop()
 	while (!glfwWindowShouldClose(appWindow::getWindow()))
 	{
 		double currentTimer = glfwGetTime();
+		frameTime = glfwGetTime() - currentTimer;
 		frameCount++;
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		processInput();
@@ -56,6 +57,7 @@ void Loop::loop()
 
 //		glDisable(GL_DEPTH_TEST);
 //		glDisable(GL_STENCIL_TEST);
+		Particles::update((float)frameTime);
 		Particles::draw();	
 		for (Line* line : lines)
 			line->draw();
@@ -63,7 +65,6 @@ void Loop::loop()
 
 		glfwSwapBuffers(appWindow::getWindow());
 
-		frameTime = glfwGetTime() - currentTimer;
 		if (frameTime < refreshingRate)
 		{
 			usleep((refreshingRate - frameTime) * SEC_TO_MICROSEC);
