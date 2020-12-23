@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/25 11:07:40 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/11 14:37:05 by nathan           ###   ########.fr       */
+/*   Updated: 2020/12/23 17:57:27 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -286,8 +286,10 @@ Matrix Matrix::invert()
 
 	det = m[0][0]*inv[0][0] + m[0][1]*inv[1][0] + m[0][2]*inv[2][0] + m[0][3]*inv[3][0];
 	if (det == 0)
-		exit(0);
-		//return *this;//TODO this cannot happen, right ? :)
+	{
+		std::cout << "Error with invert matrix, division by zero not possible" << std::endl;
+		return *this;//TODO this cannot happen, right ? :)
+	}
 
 	det = 1.0f / det;
 

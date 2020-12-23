@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/02 01:10:29 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/11 03:52:18 by nathan           ###   ########.fr       */
+/*   Updated: 2020/12/23 18:52:27 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,6 +173,15 @@ void Camera::actualizeView()
 	}
 }
 
+Vec3 Camera::unProjectToOrigin(float mouseX, float mouseY, Matrix projMat)
+{
+	std::pair<Vec3, Vec3> points = unProject(mouseX, mouseY, projMat);
+
+	Matrix cameraPlaneToOrigin = rotMat * Matrix::createTranslationMatrix(0, 0, 0);
+	Vec3 test(1, 0, 0);
+	return test;
+}
+
 std::pair<Vec3, Vec3> Camera::unProject(float mouseX, float mouseY, Matrix projMat)
 {
 	//https://doxygen.reactos.org/d2/d0d/project_8c_source.html
@@ -181,28 +190,26 @@ std::pair<Vec3, Vec3> Camera::unProject(float mouseX, float mouseY, Matrix projM
 
 	mouseY = SCREEN_HEIGHT - mouseY;
 
-	//finalMat = (getMatrix() * projMat).invert();
-	//finalMat = (projMat * getMatrix()).invert();
 	finalMat = projMat.invert();
-	//(projMat * getMatrix()).invert().print();
 
-	point1 = {mouseX, mouseY, 0.9f};
-	point2 = {mouseX, mouseY, -0.9f};
+	point1 = {mouseX, mouseY, 0.f};
+	point2 = {mouseX, mouseY, 1.f};
 
-	point1.x = point1.x / (SCREEN_WIDTH * 0.5f) - 1.0f;;
-	point2.x = point2.x / (SCREEN_WIDTH * 0.5f) - 1.0f;;
-	point1.y = point1.y / (SCREEN_HEIGHT * 0.5f) - 1.0f;;
-	point2.y = point2.y / (SCREEN_HEIGHT * 0.5f) - 1.0f;;
+	point1.x = point1.x / (SCREEN_WIDTH * 0.5f) - 1.0f;
+	point2.x = point2.x / (SCREEN_WIDTH * 0.5f) - 1.0f;
+	point1.y = point1.y / (SCREEN_HEIGHT * 0.5f) - 1.0f;
+	point2.y = point2.y / (SCREEN_HEIGHT * 0.5f) - 1.0f;
 
-/*	ballecouille de la pos de Z
-#define FOV 60.0f
+	/*already set
+	 *
 #define NEAR 0.1f
 #define FAR 1000.0f
     point1.z = (point1.z - NEAR) / (FAR - NEAR);
     point2.z = (point2.z - NEAR) / (FAR - NEAR);
+    point1.z *= 2 - 1;
+    point2.z *= 2 - 1;
 	*/
 	
-
 	point1 = finalMat * point1;
 	point2 = finalMat * point2;
 

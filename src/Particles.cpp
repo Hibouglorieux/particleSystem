@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:32 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/29 06:21:15 by nathan           ###   ########.fr       */
+/*   Updated: 2020/12/23 15:07:25 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ GLuint Particles::VBO = 0;
 cl_mem Particles::clBuffer = NULL;
 cl_mem Particles::sizePerParticleBuff = NULL;
 cl_mem Particles::timeBuff = NULL;
+cl_mem Particles::cursorPosBuff = NULL;
 cl_program Particles::updateProgram = NULL;
 cl_kernel Particles::updateKernel = NULL;
 Shader* Particles::shader = nullptr;
@@ -60,6 +61,8 @@ void Particles::initializeBuffers()
 
     glEnableVertexAttribArray(0);	
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, SIZE_PER_PARTICLE * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);	
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, SIZE_PER_PARTICLE * sizeof(float), (void*)(sizeof(float) * 3));
 	
 	/*
 	 * openCL
@@ -74,6 +77,9 @@ void Particles::initializeBuffers()
 	clProgram::checkError("clCreateBuffer", errCode);
     timeBuff = clCreateBuffer(clProgram::getContext(), CL_MEM_READ_ONLY, 
              sizeof(float), NULL, &errCode);
+	clProgram::checkError("clCreateBuffer", errCode);
+    cursorPosBuff = clCreateBuffer(clProgram::getContext(), CL_MEM_READ_ONLY, 
+             sizeof(float) * 3, NULL, &errCode);
 	clProgram::checkError("clCreateBuffer", errCode);
 
 	unsigned int sizePerParticle = SIZE_PER_PARTICLE;
@@ -163,11 +169,25 @@ void Particles::setCurrentMouse(float mouse_x, float mouse_y)
 void Particles::update(float deltaTime)
 {
 	size_t globalWorkSize = NB_PARTICLES;
-	size_t localWorkSize = 1; //TODO change that ?
+	size_t localWorkSize = 64; //TODO change that ?
 	size_t offset = 0;
+
+	float cursorPos[3];
+	camera.unProjectToOrigin(mouseX, mouseY, projMat);
+	Vec3 cursorPosVec = std::get<0>(camera.unProject(mouseX, mouseY, projMat));
+	cursorPos[0] = cursorPosVec.x;
+	cursorPos[1] = cursorPosVec.y;
+	cursorPos[2] = cursorPosVec.z;
+	//cursorPos[2] = 0.0f;
+
     callCL(clEnqueueWriteBuffer(clProgram::getQueue(), timeBuff, CL_TRUE, 0,
             sizeof(float), &deltaTime, 0, NULL, NULL));
 	callCL(clSetKernelArg(updateKernel, 2, sizeof(timeBuff), &timeBuff));
+
+    callCL(clEnqueueWriteBuffer(clProgram::getQueue(), cursorPosBuff, CL_TRUE, 0,
+            sizeof(float) * 3, cursorPos, 0, NULL, NULL));
+	callCL(clSetKernelArg(updateKernel, 3, sizeof(cursorPosBuff), &cursorPosBuff));
+
 
 	clEnqueueAcquireGLObjects(clProgram::getQueue(), 1, &clBuffer, 0, 0, NULL);
 
@@ -210,6 +230,7 @@ void Particles::clear()
 	callCL(clReleaseMemObject(sizePerParticleBuff));
 	callCL(clReleaseMemObject(clBuffer));//TODO check if needed
 	callCL(clReleaseMemObject(timeBuff));
+	callCL(clReleaseMemObject(cursorPosBuff));
 	callCL(clReleaseKernel(updateKernel));
 	callCL(clReleaseProgram(updateProgram));
 	glDeleteBuffers(1, &VBO);

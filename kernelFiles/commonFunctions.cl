@@ -1,4 +1,4 @@
-int getRandomNumber(__global ulong *seed)
+extern inline int getRandomNumber(__global ulong *seed)
 {
 	float randomisedFloat;
 	int randomNum;
@@ -9,14 +9,14 @@ int getRandomNumber(__global ulong *seed)
 	return randomNum;
 }
 
-float getRandomFloatWithMaxValue(__global ulong *seed, float maxValue)
+extern inline float getRandomFloatWithMaxValue(__global ulong *seed, float maxValue)
 {
 	float randomNumber = (float)getRandomNumber(seed);
 	randomNumber = randomNumber / (float)(0xFFFFFFFF / maxValue);
 	return randomNumber;
 }
 
-float3 randomizePosition(__global ulong *seed)
+extern inline float3 randomizePosition(__global ulong *seed)
 {
 	__private float3 randomisedFloat;
 

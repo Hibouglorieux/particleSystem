@@ -17,8 +17,9 @@ __kernel void initializeAsCircle(__global float *ptr, __global ulong *seed, __co
 		ptr[j + 1] = randomFloat.y;
 		ptr[j + 2] = randomFloat.z;
 		//now random speed
+		float3 randomSpeed;//normalize(randomizePosition(seed)) * 1000000;
+		randomSpeed = (0, 0, 0);
 		j += 3;
-		float3 randomSpeed = normalize(randomizePosition(seed)) * 100000;
 		ptr[j] = randomSpeed.x;
 		ptr[j + 1] = randomSpeed.y;
 		ptr[j + 2] = randomSpeed.z;

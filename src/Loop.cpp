@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:25 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/29 05:58:40 by nathan           ###   ########.fr       */
+/*   Updated: 2020/12/22 16:15:27 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,11 @@
 #include <iomanip>
 #include "Particles.hpp"
 
+#define FPS 60.f
+
 bool Loop::shouldStop = false;
 double Loop::frameTime = 0.0f;
-const double Loop::refreshingRate = 1.0 / 60.0;
+const double Loop::refreshingRate = 1.0 / FPS;
 double Loop::mouseX = 0.0;
 double Loop::mouseY = 0.0;
 double Loop::fpsRefreshTime = 0.0;

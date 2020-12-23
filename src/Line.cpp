@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/10 03:23:12 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/11 15:24:09 by nathan           ###   ########.fr       */
+/*   Updated: 2020/12/23 18:46:19 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,17 +23,17 @@ void Line::initializeBuffers()
 {
 	float data[6];
 	Vec3 cameraPos = Particles::getCamera().getPos();
-	Vec3 point1, point2, dir;
+	Vec3 point1, point2;//, dir;
 	point1 = std::get<0>(points);
 	point2 = std::get<1>(points);
-	dir	= point1 - point2;
-	dir = dir * 60;// make a good line
+	//dir	= point1 - point2;
+	//dir = dir * 60;// make a good line
 	data[0] = point1.x;
 	data[1] = point1.y;
 	data[2] = point1.z;
-	data[3] = point1.x + dir.x;
-	data[4] = point1.y + dir.y;
-	data[5] = point1.z + dir.z;
+	data[3] = point2.x;
+	data[4] = point2.y;
+	data[5] = point2.z;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
   
@@ -61,7 +61,7 @@ void Line::draw()
 	
 	glPointSize(10.0f);
     glDrawArrays(GL_POINTS, 0, 2);
-	glPointSize(1.f);
+	glPointSize(0.01f);
 }
 
 Line::~Line()

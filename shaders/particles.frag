@@ -1,9 +1,11 @@
 #version 330 core
-out vec4 FragColor;
 in vec3 worldPos;
+in vec3 speedColor;
 uniform vec3 mouseLineDir;
 uniform vec3 mouseLineOrigin;
 uniform vec4 myColor;
+
+out vec4 FragColor;
 
 
 float interpolate(float value, float minimum, float maximum)
@@ -25,9 +27,9 @@ float distanceFromLine(vec3 particlePoint, vec3 origin, vec3 dir)
 
 void main()
 {
-	float dist = distanceFromLine(worldPos, mouseLineOrigin, mouseLineDir);
-	float lightValue;
-	lightValue = interpolate(dist, 1.0f, 20.0f);
-	FragColor = myColor * lightValue;
-
+	//float dist = distanceFromLine(worldPos, mouseLineOrigin, mouseLineDir);
+	//float lightValue;
+	//lightValue = interpolate(dist, 1.0f, 20.0f);
+	//FragColor = myColor * lightValue;
+	FragColor = vec4(normalize(speedColor), 1.0);
 }
