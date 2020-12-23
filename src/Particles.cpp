@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:32 by nathan            #+#    #+#             */
-/*   Updated: 2020/12/23 15:07:25 by nathan           ###   ########.fr       */
+/*   Updated: 2020/12/23 23:20:56 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,12 +173,10 @@ void Particles::update(float deltaTime)
 	size_t offset = 0;
 
 	float cursorPos[3];
-	camera.unProjectToOrigin(mouseX, mouseY, projMat);
-	Vec3 cursorPosVec = std::get<0>(camera.unProject(mouseX, mouseY, projMat));
+	Vec3 cursorPosVec = camera.unProjectToOrigin(mouseX, mouseY, projMat);
 	cursorPos[0] = cursorPosVec.x;
 	cursorPos[1] = cursorPosVec.y;
 	cursorPos[2] = cursorPosVec.z;
-	//cursorPos[2] = 0.0f;
 
     callCL(clEnqueueWriteBuffer(clProgram::getQueue(), timeBuff, CL_TRUE, 0,
             sizeof(float), &deltaTime, 0, NULL, NULL));

@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/02 01:10:29 by nathan            #+#    #+#             */
-/*   Updated: 2020/12/23 18:52:27 by nathan           ###   ########.fr       */
+/*   Updated: 2020/12/23 22:00:04 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,10 +176,24 @@ void Camera::actualizeView()
 Vec3 Camera::unProjectToOrigin(float mouseX, float mouseY, Matrix projMat)
 {
 	std::pair<Vec3, Vec3> points = unProject(mouseX, mouseY, projMat);
+	Vec3 point1 = std::get<0>(points);
+	Vec3 point2 = std::get<1>(points);
+	Vec3 direction = point2 - point1;
+	direction = direction.getNormalized();
+	Vec3 origin(0, 0, 0);
 
-	Matrix cameraPlaneToOrigin = rotMat * Matrix::createTranslationMatrix(0, 0, 0);
-	Vec3 test(1, 0, 0);
-	return test;
+	float result = (origin - point1).dot(direction) / direction.dot(direction);
+	return point1 + (direction * result);
+	/*
+	 *
+	 * plane with three points 1, 0, 0
+	 * 						   0, 1, 0
+	 * 						   0, 0, 0
+	 * 	rotate these with camera rotation => plane parallel to camera one
+	 *	calculate intersection between line and that plane
+	 *
+	 *
+	 */
 }
 
 std::pair<Vec3, Vec3> Camera::unProject(float mouseX, float mouseY, Matrix projMat)

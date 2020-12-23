@@ -9,7 +9,7 @@ inline float3 getAxisFromPoint(__global float3* point)
 
 float3 attractToPoint(float3 currentVector, float3 target)
 {
-	return normalize(target - currentVector) * 0.01f;
+	return normalize(target - currentVector) * 0.001f;
 }
 
 __kernel void updateParticles(__global float* ptr, __constant uint* sizePerParticle, __constant float* deltaTime, __constant float3* cursorPos)

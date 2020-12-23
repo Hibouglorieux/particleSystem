@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:25 by nathan            #+#    #+#             */
-/*   Updated: 2020/12/22 16:15:27 by nathan           ###   ########.fr       */
+/*   Updated: 2020/12/23 23:26:54 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,7 @@ void Loop::loop()
 
 		glfwSwapBuffers(appWindow::getWindow());
 
+		frameTime = glfwGetTime() - currentTimer;
 		if (frameTime < refreshingRate)
 		{
 			usleep((refreshingRate - frameTime) * SEC_TO_MICROSEC);

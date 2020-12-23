@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/10 03:23:12 by nathan            #+#    #+#             */
-/*   Updated: 2020/12/23 18:46:19 by nathan           ###   ########.fr       */
+/*   Updated: 2020/12/23 23:11:45 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 Line::Line(float mouseX, float mouseY)
 {
 	points = Particles::getCamera().unProject(mouseX, mouseY, Particles::getProjMat());
+	//Vec3 point1 = Particles::getCamera().unProjectToOrigin(mouseX, mouseY, Particles::getProjMat());
+	//points = std::make_pair(point1, std::get<1>(points));
 	initializeBuffers();
 }
 

@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/26 16:12:31 by nathan            #+#    #+#             */
-/*   Updated: 2020/09/03 23:01:17 by nathan           ###   ########.fr       */
+/*   Updated: 2020/12/23 21:46:00 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,11 @@ Vec3 Vec3::getNormalized() const
 	if (length == 0)
 		return Vec3::ZERO;
 	return Vec3(x / length, y / length, z / length);
+}
+
+float Vec3::dot(Vec3 rhs) const
+{
+	return (x * rhs.x + y * rhs.y + z * rhs.z);
 }
 
 std::string Vec3::toString() const

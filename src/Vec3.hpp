@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/26 16:12:34 by nathan            #+#    #+#             */
-/*   Updated: 2020/09/03 22:59:42 by nathan           ###   ########.fr       */
+/*   Updated: 2020/12/23 21:45:59 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ public:
 	float getLength() const;
 	Vec3 getAngle() const;
 	Vec3 getNormalized() const;
+	float dot(Vec3 rhs) const;
 	std::string toString() const;
 	void print() const;
 	
