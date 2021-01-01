@@ -6,7 +6,7 @@
 /*   By: nathan <nallani@student.s19.be>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 01:52:59 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/07 17:25:45 by nathan           ###   ########.fr       */
+/*   Updated: 2020/12/27 15:40:43 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,6 @@ int		main( void )
     ret = clReleaseCommandQueue(command_queue);
     ret = clReleaseContext(context);
 	*/
-	Camera camera;
 
 	Loop::loop();
 	Particles::clear();

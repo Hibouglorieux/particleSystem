@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/02 01:10:29 by nathan            #+#    #+#             */
-/*   Updated: 2020/12/23 22:00:04 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/01 18:04:49 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #define X_ROTATION_SPEED 1
 #define Y_ROTATION_SPEED 1
 
-Camera::Camera() : Camera(Vec3(0, 4, 10))
+Camera::Camera() : Camera(Vec3(0, 0, 50))
 {
 }
 
@@ -26,10 +26,11 @@ Camera::Camera(float x, float y, float z) : Camera(Vec3(x, y, z))
 
 Camera::Camera(Vec3 position)
 {
+	std::cout << "camera created :";
+	position.print();
 	this->pos = position;
 	hasTarget = false;
 	dir = {0, 0, 0};
-	lookAt();
 	actualizeView();
 }
 
@@ -56,7 +57,7 @@ void Camera::lookAt(Vec3 target)
 {
 	hasTarget = true;
 	dir = {0, 0, 0};
-	pos = target - Vec3(0, -4, -10);
+	pos = target - Vec3(0, 0, -50);
 	this->target = target;
 }
 
@@ -64,7 +65,7 @@ void Camera::freeMovement()
 {
 	hasTarget = false;
 	dir = {0, 0, 0};
-	pos = {0, 4, 10};
+	pos = {0, 0, 50};
 	actualizeView();
 }
 

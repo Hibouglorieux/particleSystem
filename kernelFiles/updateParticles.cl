@@ -21,16 +21,12 @@ __kernel void updateParticles(__global float* ptr, __constant uint* sizePerParti
 	currentVector.y = ptr[i + 1];
 	currentVector.z = ptr[i + 2];
 
-	float3 test = attractToPoint(currentVector, *cursorPos);
+	float3 test = normalize(*cursorPos - currentVector) * 100000000000 * *deltaTime;//TODO thats a big number !
 	ptr[i + 3] += test.x;
 	ptr[i + 4] += test.y;
 	ptr[i + 5] += test.z;
-	ptr[i] = ptr[i] + (ptr[i + 3]);
-	ptr[i + 1] = ptr[i + 1] + (ptr[i + 4]);
-	ptr[i + 2] = ptr[i + 2] + (ptr[i + 5]);
 	
 	//take time into account
-	//float3 test = normalize(*cursorPos - currentVector) * 10000;
 	ptr[i] = ptr[i] + (ptr[i + 3] * *deltaTime);
 	ptr[i + 1] = ptr[i + 1] + (ptr[i + 4] * *deltaTime);
 	ptr[i + 2] = ptr[i + 2] + (ptr[i + 5] * *deltaTime);

@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:32 by nathan            #+#    #+#             */
-/*   Updated: 2020/12/23 23:20:56 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/01 18:01:55 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,19 @@ GLuint Particles::VBO = 0;
 cl_mem Particles::clBuffer = NULL;
 cl_mem Particles::sizePerParticleBuff = NULL;
 cl_mem Particles::timeBuff = NULL;
-cl_mem Particles::cursorPosBuff = NULL;
+cl_mem Particles::gravityPosBuff = NULL;
 cl_program Particles::updateProgram = NULL;
 cl_kernel Particles::updateKernel = NULL;
 Shader* Particles::shader = nullptr;
-Camera Particles::camera = {0, 0, 300};
+Camera Particles::camera = {0, 0, 50};
 Matrix Particles::projMat = Matrix::createProjMatrix(FOV, SCREEN_WIDTH / SCREEN_HEIGHT, NEAR, FAR);
 float Particles::mouseX = 0.0f;
 float Particles::mouseY = 0.0f;
+float Particles::speed = 3.0f;
+Vec3 Particles::gravityPoint = {0, 0, 0};
+bool Particles::isGravityStatic = false;
+bool Particles::noGravity = true;
+bool Particles::shouldSaveMouseCoords = false;
 
 void Particles::initialize()
 {
@@ -41,7 +46,7 @@ void Particles::initialize()
 		initializeBuffers();
 		initializeOpenGL();
 		initializeOpenCL();
-		initializeParticles();
+		initializeParticlesPos(SQUARE);
 	}
 }
 
@@ -78,7 +83,7 @@ void Particles::initializeBuffers()
     timeBuff = clCreateBuffer(clProgram::getContext(), CL_MEM_READ_ONLY, 
              sizeof(float), NULL, &errCode);
 	clProgram::checkError("clCreateBuffer", errCode);
-    cursorPosBuff = clCreateBuffer(clProgram::getContext(), CL_MEM_READ_ONLY, 
+    gravityPosBuff = clCreateBuffer(clProgram::getContext(), CL_MEM_READ_ONLY, 
              sizeof(float) * 3, NULL, &errCode);
 	clProgram::checkError("clCreateBuffer", errCode);
 
@@ -104,12 +109,22 @@ void Particles::initializeOpenCL()
 	callCL(clSetKernelArg(updateKernel, 1, sizeof(sizePerParticleBuff), &sizePerParticleBuff));
 }
 
-void Particles::initializeParticles()
+void Particles::initializeParticlesPos(int mod)
 {
 
 	cl_int errCode;
-	cl_program ini = clProgram::createProgram("initializeAsCircle.cl");
-    cl_kernel kernel = clCreateKernel(ini, "initializeAsCircle", &errCode);
+	cl_program ini;
+    cl_kernel kernel;
+   	if (mod & CIRCLE)
+	{
+		ini	= clProgram::createProgram("initializeAsCircle.cl");
+    	kernel = clCreateKernel(ini, "initializeAsCircle", &errCode);
+	}
+	if (mod & SQUARE)
+	{
+		ini = clProgram::createProgram("initializeAsSquare.cl");
+    	kernel = clCreateKernel(ini, "initializeAsSquare", &errCode);
+	}
 	clProgram::checkError("clCreateKernel", errCode);
 
 	cl_command_queue queue = clProgram::getQueue();
@@ -138,10 +153,6 @@ void Particles::initializeParticles()
 	size_t globalWorkSize = 1;
 	size_t localWorkSize = 1; //TODO change that ?
 	size_t offset = 0;
-	//TODO 
-	//1 - initialize small amount of particle with + only number
-	//2 - change x y z with random numbers for other particles
-	//3 - reverse x y and/or z to fill particles in 7 other square of space
     callCL(clEnqueueNDRangeKernel(queue, kernel, 1, &offset, 
             &globalWorkSize, &localWorkSize, 0, NULL, NULL));
 
@@ -152,7 +163,6 @@ void Particles::initializeParticles()
 	callCL(clReleaseMemObject(seedBuff));
 	callCL(clReleaseMemObject(nbParticlesBuff));
     callCL(clReleaseKernel(kernel));
-    callCL(clReleaseProgram(ini));
 }
 
 void Particles::callCLFunc(cl_int errCode, std::string funcCall, int line)
@@ -164,27 +174,37 @@ void Particles::setCurrentMouse(float mouse_x, float mouse_y)
 {
 	mouseX = mouse_x;
 	mouseY = mouse_y;
+	if (shouldSaveMouseCoords)
+	{
+		gravityPoint = camera.unProjectToOrigin(mouseX, mouseY, projMat);
+		shouldSaveMouseCoords = false;
+	}
 }
 
 void Particles::update(float deltaTime)
 {
+	if (!isGravityStatic)
+		gravityPoint = camera.unProjectToOrigin(mouseX, mouseY, projMat);
+	if (noGravity)
+		return;
 	size_t globalWorkSize = NB_PARTICLES;
 	size_t localWorkSize = 64; //TODO change that ?
 	size_t offset = 0;
 
-	float cursorPos[3];
-	Vec3 cursorPosVec = camera.unProjectToOrigin(mouseX, mouseY, projMat);
-	cursorPos[0] = cursorPosVec.x;
-	cursorPos[1] = cursorPosVec.y;
-	cursorPos[2] = cursorPosVec.z;
+	float gravityPos[3];
+	gravityPos[0] = gravityPoint.x;
+	gravityPos[1] = gravityPoint.y;
+	gravityPos[2] = gravityPoint.z;
+
+	deltaTime *= speed;
 
     callCL(clEnqueueWriteBuffer(clProgram::getQueue(), timeBuff, CL_TRUE, 0,
             sizeof(float), &deltaTime, 0, NULL, NULL));
 	callCL(clSetKernelArg(updateKernel, 2, sizeof(timeBuff), &timeBuff));
 
-    callCL(clEnqueueWriteBuffer(clProgram::getQueue(), cursorPosBuff, CL_TRUE, 0,
-            sizeof(float) * 3, cursorPos, 0, NULL, NULL));
-	callCL(clSetKernelArg(updateKernel, 3, sizeof(cursorPosBuff), &cursorPosBuff));
+    callCL(clEnqueueWriteBuffer(clProgram::getQueue(), gravityPosBuff, CL_TRUE, 0,
+            sizeof(float) * 3, gravityPos, 0, NULL, NULL));
+	callCL(clSetKernelArg(updateKernel, 3, sizeof(gravityPosBuff), &gravityPosBuff));
 
 
 	clEnqueueAcquireGLObjects(clProgram::getQueue(), 1, &clBuffer, 0, 0, NULL);
@@ -201,26 +221,38 @@ void Particles::draw()
 {
 	std::array<float, 4> color = PARTICLE_COLOR;
 	Vec3 lineDir, lineOrigin;
-	std::pair<Vec3, Vec3> points = camera.unProject(mouseX, mouseY, projMat);
-	lineOrigin = std::get<0>(points);
-	lineDir = lineOrigin - std::get<1>(points);
-	lineDir = lineDir.getNormalized();
-	float vec3Data[6];
+	float vec3Data[3];
 	for (int i = 0; i < 3; i++)
 	{
-		vec3Data[i] = lineOrigin[i];
-		vec3Data[i + 3] = lineDir[i];
+		vec3Data[i] = gravityPoint[i];
 	}
 
 	shader->use();
 	Matrix precalcMat = projMat * camera.getMatrix();
 	glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "camera"), 1, GL_TRUE, camera.getMatrix().exportForGL());
     glUniformMatrix4fv(glGetUniformLocation(shader->getID(), "precalcMat"), 1, GL_TRUE, precalcMat.exportForGL());
-	glUniform3fv(glGetUniformLocation(shader->getID(), "mouseLineOrigin"), 1, vec3Data);
-	glUniform3fv(glGetUniformLocation(shader->getID(), "mouseLineDir"), 1, &vec3Data[3]);
+	glUniform3fv(glGetUniformLocation(shader->getID(), "gravityCenter"), 1, vec3Data);
     glUniform4fv(glGetUniformLocation(shader->getID(), "myColor"), 1, &color.front());
     glBindVertexArray(VAO);
     glDrawArrays(GL_POINTS, 0, NB_PARTICLES);
+}
+
+void Particles::lockGravityPoint(bool gravityStatic)
+{
+	isGravityStatic = gravityStatic;
+	shouldSaveMouseCoords = true;
+}
+
+void Particles::changeSpeed(float value)
+{
+	speed += value;
+	if (speed < 0.3f)
+		speed = 0.3f;
+}
+
+void Particles::gravityOnOff()
+{
+	noGravity = !noGravity;
 }
 
 void Particles::clear()
@@ -228,9 +260,8 @@ void Particles::clear()
 	callCL(clReleaseMemObject(sizePerParticleBuff));
 	callCL(clReleaseMemObject(clBuffer));//TODO check if needed
 	callCL(clReleaseMemObject(timeBuff));
-	callCL(clReleaseMemObject(cursorPosBuff));
+	callCL(clReleaseMemObject(gravityPosBuff));
 	callCL(clReleaseKernel(updateKernel));
-	callCL(clReleaseProgram(updateProgram));
 	glDeleteBuffers(1, &VBO);
 	VBO = 0;
 	glDeleteVertexArrays(1, &VAO);

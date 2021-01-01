@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:02:51 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/07 17:25:30 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/01 17:42:17 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,8 @@ cl_program clProgram::createProgram(std::string sourceFile)
 	const char *source_str = fileAsString.c_str();
 	const size_t source_size = fileAsString.size();
 
+	if (programs.find(sourceFile) != programs.end())
+		return programs[sourceFile];
     cl_program program = clCreateProgramWithSource(context, 1, 
             (const char **)&source_str, (const size_t *)&source_size, &retVal);
 // context, 1 = to number of files loaded, array of source code, array of length of the source code, retval
@@ -138,14 +140,17 @@ cl_program clProgram::createProgram(std::string sourceFile)
 		delete [] log;
 		checkError(std::string("clBuildProgram, with source: ") + sourceFile);
 	}
-	if (programs.find(sourceFile) != programs.end())
-		retVal = clReleaseProgram(programs.at(sourceFile));
 	programs[sourceFile] = program;
 	return program;
 }
 
 void clProgram::clear()
 {
+	for (auto& [key, value] : programs)
+	{
+		clReleaseProgram(programs.at(key));
+	}
+	programs.clear();
     retVal = clReleaseCommandQueue(queue);
 	checkError("clReleaseCommandQueue");
     retVal = clReleaseContext(context);

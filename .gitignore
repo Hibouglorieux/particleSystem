@@ -24,6 +24,7 @@ tags
 .vim
 
 obj
+obj/*.o
 particleSystem
 particleSystem.exe
 *.o

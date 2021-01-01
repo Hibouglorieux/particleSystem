@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:25 by nathan            #+#    #+#             */
-/*   Updated: 2020/12/23 23:26:54 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/01 18:00:38 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,8 @@ void Loop::loop()
 //		glDisable(GL_STENCIL_TEST);
 		Particles::update((float)frameTime);
 		Particles::draw();	
-		for (Line* line : lines)
-			line->draw();
+	//	for (Line* line : lines)
+	//		line->draw();
 		glFinish();
 
 		glfwSwapBuffers(appWindow::getWindow());
@@ -82,9 +82,9 @@ void Loop::loop()
 			fpsRefreshTime = currentTimer;
 		}
 	}
-	for (Line* line : lines)
-		delete line;
-	lines.clear();
+	//for (Line* line : lines)
+	//	delete line;
+	//lines.clear();
 }
 
 void Loop::processInput()
@@ -110,15 +110,23 @@ void Loop::processInput()
 	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
 		Particles::getCamera().moveDown();
 
+	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_UP) == GLFW_PRESS)
+		Particles::changeSpeed(0.05f);
+	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_DOWN) == GLFW_PRESS)
+		Particles::changeSpeed(-0.05f);
+
 	double oldMouseX = mouseX;
 	double oldMouseY = mouseY;
 	glfwGetCursorPos(appWindow::getWindow(), &mouseX, &mouseY);
 	Particles::setCurrentMouse(mouseX, mouseY);
+	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+		Particles::lockGravityPoint(true);
+	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
+		Particles::lockGravityPoint(false);
 	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		Particles::getCamera().rotate(mouseX - oldMouseX, mouseY - oldMouseY);
 	// VISUAL RAYCASTING
-	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-		lines.push_back(new Line(mouseX, mouseY));
+	//	lines.push_back(new Line(mouseX, mouseY));
 }
 
 void Loop::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -132,6 +140,12 @@ void Loop::keyCallback(GLFWwindow* window, int key, int scancode, int action, in
 		Particles::getCamera().freeMovement();
 	if (key == GLFW_KEY_R && action == GLFW_PRESS)
 		Particles::getCamera().reset();
+	if (key == GLFW_KEY_G && action == GLFW_PRESS)
+		Particles::gravityOnOff();
+	if (key == GLFW_KEY_O && action == GLFW_PRESS)
+		Particles::initializeParticlesPos(SQUARE);
+	if (key == GLFW_KEY_C && action == GLFW_PRESS)
+		Particles::initializeParticlesPos(CIRCLE);
 }
 
 void Loop::scrollCallBack(GLFWwindow* window, double xoffset, double yoffset)
