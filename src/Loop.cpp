@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:25 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/01 18:00:38 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/09 03:17:41 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,8 @@ void Loop::loop()
 //		glDisable(GL_STENCIL_TEST);
 		Particles::update((float)frameTime);
 		Particles::draw();	
-	//	for (Line* line : lines)
-	//		line->draw();
+		for (Line* line : lines)
+			line->draw();
 		glFinish();
 
 		glfwSwapBuffers(appWindow::getWindow());
@@ -76,15 +76,15 @@ void Loop::loop()
 		{
 			std::stringstream ss;
 			double fps = (float)frameCount / (currentTimer - fpsRefreshTime);
-			ss << std::fixed << std::setprecision(1) << fps;
-			glfwSetWindowTitle(appWindow::getWindow(), std::string(std::string("Humangl ") + std::to_string(fps)).c_str());
+			ss << std::setprecision(3) << fps;
+			glfwSetWindowTitle(appWindow::getWindow(), std::string(std::string("Humangl ") + ss.str()).c_str());
 			frameCount = 0;
 			fpsRefreshTime = currentTimer;
 		}
 	}
-	//for (Line* line : lines)
-	//	delete line;
-	//lines.clear();
+	for (Line* line : lines)
+		delete line;
+	lines.clear();
 }
 
 void Loop::processInput()
@@ -122,11 +122,13 @@ void Loop::processInput()
 	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		Particles::lockGravityPoint(true);
 	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
+	{
 		Particles::lockGravityPoint(false);
+		lines.push_back(new Line(mouseX, mouseY));
+	}
 	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		Particles::getCamera().rotate(mouseX - oldMouseX, mouseY - oldMouseY);
 	// VISUAL RAYCASTING
-	//	lines.push_back(new Line(mouseX, mouseY));
 }
 
 void Loop::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -146,6 +148,10 @@ void Loop::keyCallback(GLFWwindow* window, int key, int scancode, int action, in
 		Particles::initializeParticlesPos(SQUARE);
 	if (key == GLFW_KEY_C && action == GLFW_PRESS)
 		Particles::initializeParticlesPos(CIRCLE);
+	if (key == GLFW_KEY_X && action == GLFW_PRESS)
+		Particles::addGravityPoint();
+	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
+		Particles::removeGravityPoints();
 }
 
 void Loop::scrollCallBack(GLFWwindow* window, double xoffset, double yoffset)

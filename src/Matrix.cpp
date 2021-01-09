@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/25 11:07:40 by nathan            #+#    #+#             */
-/*   Updated: 2020/12/23 17:57:27 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/09 04:08:16 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,11 +61,13 @@ Matrix::Matrix( const Matrix& copy )
 Matrix Matrix::createProjMatrix( float fov, float aspect, float near, float far )
 {
 	float tanHalfFov = tan( TO_RAD(fov) / 2 );
+	std::cout << "LOL" << aspect << std::endl;
 	Matrix projMatrix({
 		{1 / ( aspect * tanHalfFov ), 0 , 0, 0},
 		{0, 1 / tanHalfFov, 0, 0},
 		{0, 0 , -( far + near ) / ( far - near ), ( -2 * far * near ) / ( far - near )},
-		{0, 0 , -1, 1}});
+		{0, 0 , -1, 0}});
+	projMatrix.print();
 	return std::move( projMatrix );
 }
 

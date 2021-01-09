@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/02 01:10:29 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/01 18:04:49 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/09 04:41:35 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@ Camera::Camera(float x, float y, float z) : Camera(Vec3(x, y, z))
 Camera::Camera(Vec3 position)
 {
 	std::cout << "camera created :";
-	position.print();
 	this->pos = position;
 	hasTarget = false;
 	dir = {0, 0, 0};
@@ -202,34 +201,23 @@ std::pair<Vec3, Vec3> Camera::unProject(float mouseX, float mouseY, Matrix projM
 	//https://doxygen.reactos.org/d2/d0d/project_8c_source.html
 	Matrix finalMat;
 	Vec3 point1, point2;
+	int width, height;
 
-	mouseY = SCREEN_HEIGHT - mouseY;
-
-	finalMat = projMat.invert();
+	appWindow::getWindowSize(&width, &height);
+	mouseY = height - mouseY;
 
 	point1 = {mouseX, mouseY, 0.f};
 	point2 = {mouseX, mouseY, 1.f};
 
-	point1.x = point1.x / (SCREEN_WIDTH * 0.5f) - 1.0f;
-	point2.x = point2.x / (SCREEN_WIDTH * 0.5f) - 1.0f;
-	point1.y = point1.y / (SCREEN_HEIGHT * 0.5f) - 1.0f;
-	point2.y = point2.y / (SCREEN_HEIGHT * 0.5f) - 1.0f;
 
-	/*already set
-	 *
-#define NEAR 0.1f
-#define FAR 1000.0f
-    point1.z = (point1.z - NEAR) / (FAR - NEAR);
-    point2.z = (point2.z - NEAR) / (FAR - NEAR);
-    point1.z *= 2 - 1;
-    point2.z *= 2 - 1;
-	*/
-	
+	point1.x = point1.x / (width * 0.5f) - 1.0f;
+	point2.x = point2.x / (width * 0.5f) - 1.0f;
+	point1.y = point1.y / (height * 0.5f) - 1.0f;
+	point2.y = point2.y / (height * 0.5f) - 1.0f;
+
+	finalMat = (projMat * getMatrix()).invert();
 	point1 = finalMat * point1;
 	point2 = finalMat * point2;
-
-	point1 = getMatrix().invert() * point1;
-	point2 = getMatrix().invert() * point2;
 
 	return std::make_pair(point1, point2);
 }

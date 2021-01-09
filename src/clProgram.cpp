@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:02:51 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/01 17:42:17 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/01 18:41:32 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ void clProgram::initialize()
 	delete [] name;
 }
 
-cl_program clProgram::createProgram(std::string sourceFile)
+cl_program& clProgram::createProgram(std::string sourceFile)
 {
 	std::ifstream file;
 	file.open(KERNEL_SOURCE_DIR + sourceFile);
@@ -141,14 +141,21 @@ cl_program clProgram::createProgram(std::string sourceFile)
 		checkError(std::string("clBuildProgram, with source: ") + sourceFile);
 	}
 	programs[sourceFile] = program;
-	return program;
+	return programs[sourceFile];
+}
+
+cl_program& clProgram::getProgram(std::string name)
+{
+	if (programs.find(name) == programs.end())
+		return createProgram(name);
+	return programs.at(name);
 }
 
 void clProgram::clear()
 {
-	for (auto& [key, value] : programs)
+	for (auto& it: programs)
 	{
-		clReleaseProgram(programs.at(key));
+		clReleaseProgram(programs.at(it.first));
 	}
 	programs.clear();
     retVal = clReleaseCommandQueue(queue);

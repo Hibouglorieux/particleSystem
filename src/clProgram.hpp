@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:02:53 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/07 16:33:44 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/01 18:38:34 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,10 @@ class clProgram {
 public:
 	static void initialize();
 	static void clCallBack(const char* errinfo, const void* private_info, size_t cb, void* user_data);
-	static cl_program createProgram(std::string sourceFile);
+	static cl_program& createProgram(std::string sourceFile);
 	static void clear();
 	static cl_context getContext(){return context;};
-	static cl_program getProgram(std::string name){return programs.at(name);}
+	static cl_program& getProgram(std::string name);
 	static void checkError(std::string functionName, cl_int errCode = retVal);
 	static cl_command_queue getQueue(){return queue;}
 private:

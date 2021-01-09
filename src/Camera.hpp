@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/02 01:10:32 by nathan            #+#    #+#             */
-/*   Updated: 2020/12/27 15:36:07 by nathan           ###   ########.fr       */
+/*   Updated: 2021/01/09 03:46:32 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #ifndef CAMERA_CLASS_H
 # define CAMERA_CLASS_H
 #include "Matrix.hpp"
+#include "appWindow.hpp"
 #include "Vec3.hpp"
 #include <utility>
 
