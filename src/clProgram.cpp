@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:02:51 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/01 18:41:32 by nathan           ###   ########.fr       */
+/*   Updated: 2022/06/24 23:54:32 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ cl_int clProgram::retVal = 0;
 cl_context clProgram::context = NULL;
 cl_command_queue clProgram::queue = NULL;
 std::map<std::string, cl_program> clProgram::programs = {};
+size_t clProgram::max_group_size = 0;
 
 void clProgram::initialize()
 {
@@ -70,6 +71,8 @@ void clProgram::initialize()
     retVal = clGetDeviceIDs( platform_id, CL_DEVICE_TYPE_GPU, 1, 
             &device_id, &ret_num_devices);// get devices (gpu, cpu..)
 	checkError("getDeviceID");
+	clGetDeviceInfo(device_id, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(size_t), &max_group_size, nullptr);
+	std::cout << "MAX SIZE IS: " << max_group_size << std::endl;
 	if (IS_CL_VERBOSE)
 	{
 		std::cout << "There are: " << ret_num_devices << " opencl devices found" << std::endl;
@@ -179,6 +182,6 @@ void clProgram::checkError(std::string functionName, cl_int errCode)
 	if (errCode != CL_SUCCESS)
 	{
 		std::cout << "Error: no CL_SUCCESS(" << (int)errCode << ") with: " << functionName << std::endl;
-	exit(0);
+		exit(0);
 	}
 }

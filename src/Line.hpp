@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/10 03:23:14 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/10 03:39:51 by nathan           ###   ########.fr       */
+/*   Updated: 2022/06/24 23:25:15 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #ifndef LINE_CLASS_H
 # define LINE_CLASS_H
 
+#include "ParticleSystem.h"
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <utility>

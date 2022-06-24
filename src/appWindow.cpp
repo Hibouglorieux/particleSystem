@@ -6,7 +6,7 @@
 /*   By: nathan <nallani@student.s19.be>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 01:55:16 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/09 04:37:33 by nathan           ###   ########.fr       */
+/*   Updated: 2022/06/24 23:31:59 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int appWindow::init()
 		}
 		int count;
 		mode = glfwGetVideoMode(*glfwGetMonitors(&count));
-		glfwWindowHint(GLFW_SAMPLES, 4); // antilia4ing x4
+	//	glfwWindowHint(GLFW_SAMPLES, 4); // antilia4ing x4
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // openGL 4.5
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5); // "
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed

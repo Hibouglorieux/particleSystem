@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:25 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/09 03:17:41 by nathan           ###   ########.fr       */
+/*   Updated: 2022/06/24 23:22:42 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,10 +68,12 @@ void Loop::loop()
 		glfwSwapBuffers(appWindow::getWindow());
 
 		frameTime = glfwGetTime() - currentTimer;
+		/*
 		if (frameTime < refreshingRate)
 		{
 			usleep((refreshingRate - frameTime) * SEC_TO_MICROSEC);
 		}
+		*/
 		if (fpsRefreshTime + 0.5 > currentTimer)
 		{
 			std::stringstream ss;

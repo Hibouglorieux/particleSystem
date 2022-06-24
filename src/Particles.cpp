@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:32 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/09 04:22:51 by nathan           ###   ########.fr       */
+/*   Updated: 2022/06/24 23:59:48 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ Camera Particles::camera = {0, 0, 50};
 Matrix Particles::projMat = Matrix();
 float Particles::mouseX = 0.0f;
 float Particles::mouseY = 0.0f;
-float Particles::speed = 3.0f;
+float Particles::speed = 10.0f;
 bool Particles::isGravityStatic = false;
 bool Particles::noGravity = true;
 bool Particles::shouldSaveMouseCoords = false;
@@ -166,8 +166,13 @@ void Particles::initializeParticlesPos(int mod)
     cl_kernel kernel;
    	if (mod & CIRCLE)
     	kernel = iniAsCircleKernel;
-	if (mod & SQUARE)
+	else if (mod & SQUARE)
     	kernel = iniAsSquareKernel;
+	else
+	{
+		std::cerr << "Wrong mod received in initializeParticlePos" << std::endl;
+		exit(-1);
+	}
 
 	cl_command_queue queue = clProgram::getQueue();
 	glFinish();
@@ -206,12 +211,12 @@ void Particles::update(float deltaTime)
 	if (noGravity)
 		return;
 	size_t globalWorkSize = NB_PARTICLES;
-	size_t localWorkSize = 64; //TODO change that ?
+	size_t localWorkSize = clProgram::getMaxGroupSize(); //TODO change that ?
 	size_t offset = 0;
 
 	deltaTime *= speed;
 	float deltaTimeMultByAcceleration = deltaTime * 100000000000.0f;
-	std::cout << deltaTime << std::endl;
+	//std::cout << deltaTime << std::endl;
 
     callCL(clEnqueueWriteBuffer(clProgram::getQueue(), timeBuff, CL_FALSE, 0,
             sizeof(float), &deltaTimeMultByAcceleration, 0, NULL, NULL));

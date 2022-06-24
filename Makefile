@@ -15,29 +15,25 @@ FILES = main.cpp \
 
 OBJ = $(addprefix obj/,$(FILES:.cpp=.o))
 
-#linkage
-LIBS = -lglfw -lX11 -lXrandr -lXinerama -lXi -lXxf86vm -lXcursor -lGL -lpthread -ldl `pkg-config --libs glew` -lm -lOpenCL
+EXTERNAL_LIBS = glew
 
-UNAME = $(shell uname -s)
-ifneq (, $(findstring MINGW, $(UNAME)))
-	LIBS = -lglfw3 -lgdi32 -lglew32 -lopengl32
-	NAME = humangl.exe
-endif
+#linkage
+LIBS = -lglfw -lX11 -lXrandr -lXinerama -lXi -lXxf86vm -lXcursor -lGL -lpthread -ldl `pkg-config --libs $(EXTERNAL_LIBS)` -lm /sgoinfre/goinfre/Perso/nallani/opencl/usr/lib/x86_64-linux-gnu/libOpenCL.so
 
 # 14 is fine for now, might need to upgrade ?
 CXXFLAGS = -std=gnu++14 -Wall -Wextra
-CXXFLAGS += -g #GNU debugger
+CXXFLAGS += -O3 #GNU debugger
 CXXFLAGS += -fno-omit-frame-pointer #linux profiler
 CXXFLAGS += -Wno-deprecated-declarations # hide usleep deprecated warning
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	$(CXX) $^ -o $@ $(LIBS)
+	$(CXX) $^ -O3 -o $@ $(LIBS)
 
-obj/%.o:src/%.cpp includes/*.h $(wildacrd $(src/%.hpp))
+obj/%.o:src/%.cpp includes/*.h src/*.hpp
 	@mkdir -p obj
-	$(CXX) $(CXXFLAGS) -c $< -o $@ -Iincludes -Ilibft
+	$(CXX) $(CXXFLAGS) -c $< -o $@ -Iincludes -Ilibft -I$(HOME)/.brew/include
 
 clean :
 	rm -rf obj

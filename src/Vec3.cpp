@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/26 16:12:31 by nathan            #+#    #+#             */
-/*   Updated: 2020/12/23 21:46:00 by nathan           ###   ########.fr       */
+/*   Updated: 2022/05/27 21:16:10 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,11 @@ Vec3::Vec3( const Vec3& copy)
 	x = copy.x;
 	y = copy.y;
 	z = copy.z;
+}
+
+float Vec3::getSquaredLength() const
+{
+	return (x * x + y * y + z * z);
 }
 
 float Vec3::getLength() const
@@ -62,6 +67,11 @@ Vec3 Vec3::getNormalized() const
 float Vec3::dot(Vec3 rhs) const
 {
 	return (x * rhs.x + y * rhs.y + z * rhs.z);
+}
+
+Vec3 Vec3::cross(Vec3 rhs) const
+{
+	return Vec3(y * rhs.z - z * rhs.y, z * rhs.x - x * rhs.z, x * rhs.y - y * rhs.x);
 }
 
 std::string Vec3::toString() const
@@ -120,6 +130,12 @@ Vec3 Vec3::operator*(const Vec3& rhs) const
 	return newVector;
 }
 
+Vec3 Vec3::operator/=(const float value) const
+{
+	Vec3 newVector( x / value, y / value, z / value);
+	return newVector;
+}
+
 bool Vec3::operator==(const Vec3& rhs) const
 {
 	if (this->x == rhs.x && this->y == rhs.y && this->z == rhs.z)
@@ -155,6 +171,21 @@ float& Vec3::operator[]( const int i )
 Vec3 Vec3::operator-() const
 {
 	return Vec3(-x, -y, -z);
+}
+
+Vec3& Vec3::operator=(const Vec3& rhs)
+{
+	this->x = rhs.x;
+	this->y = rhs.y;
+	this->z = rhs.z;
+	return *this;
+
+}
+
+std::ostream& operator<<(std::ostream& os, const Vec3& vec)
+{
+	os << vec.toString();
+	return os;
 }
 
 const Vec3 Vec3::ZERO(0, 0 ,0);

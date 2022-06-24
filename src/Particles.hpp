@@ -6,14 +6,14 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:37 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/05 19:47:43 by nathan           ###   ########.fr       */
+/*   Updated: 2022/06/24 23:47:37 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #ifndef PARTICLES_CLASS_H
 # define PARTICLES_CLASS_H
-# define NB_PARTICLES 1'000'000
+# define NB_PARTICLES 1'000'448 // needs to be a multiple of 1024 !
 # define SIZE_PER_PARTICLE 6
 # define PARTICLE_SIZE 0.01f
 # define PARTICLE_COLOR {0.5f, 0.0f, 0.0f, 1.0}
@@ -21,6 +21,7 @@
 # define callCL(x) callCLFunc(x, #x, __LINE__)
 # define CIRCLE 1
 # define SQUARE CIRCLE << 1
+#include "ParticleSystem.h"
 #include <CL/cl.h>
 #include <GL/glew.h>
 #include <GL/gl.h>

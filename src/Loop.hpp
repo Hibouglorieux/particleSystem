@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:30 by nathan            #+#    #+#             */
-/*   Updated: 2020/11/10 03:43:58 by nathan           ###   ########.fr       */
+/*   Updated: 2022/06/24 23:24:55 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # define LOOP_CLASS_H
 
 #include <vector>
+#include "ParticleSystem.h"
 #include "appWindow.hpp"
 //TMP
 #include "Line.hpp"
