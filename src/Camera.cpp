@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/02 01:10:29 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/09 04:41:35 by nathan           ###   ########.fr       */
+/*   Updated: 2022/07/08 17:43:59 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,6 +180,7 @@ Vec3 Camera::unProjectToOrigin(float mouseX, float mouseY, Matrix projMat)
 	Vec3 point2 = std::get<1>(points);
 	Vec3 direction = point2 - point1;
 	direction = direction.getNormalized();
+	//return pos + direction * pos.getLength();
 	Vec3 origin(0, 0, 0);
 
 	float result = (origin - point1).dot(direction) / direction.dot(direction);

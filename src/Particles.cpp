@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:32 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/08 17:24:37 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/08 19:03:19 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,16 @@ bool Particles::isGravityStatic = false;
 bool Particles::noGravity = true;
 bool Particles::shouldSaveMouseCoords = false;
 std::vector<Vec3> Particles::gravityPoints = {{0, 0 ,0}};
+int Particles::invertColorsValue = 1;
+size_t	Particles::currentColorIndex = 0;
+std::vector<std::array<float, 4>> Particles::colors = {
+	{0.5f, 0.0f, 0.0f, 1.0},
+	{0.0f, 0.5f, 0.0f, 1.0},
+	{0.0f, 0.0f, 0.5f, 1.0},
+	{0.5f, 0.0f, 0.3f, 1.0},
+	{0.0f, 0.7f, 0.7f, 1.0},
+	{0.9f, 0.0f, 0.5f, 1.0}
+};
 
 void Particles::initialize()
 {
@@ -197,10 +207,9 @@ void Particles::initializeParticlesPos(int mod)
 	clEnqueueAcquireGLObjects(queue, 1, &clBuffer, 0, 0, NULL);
 
 	size_t globalWorkSize = 1;
-	size_t localWorkSize = 1; //TODO change that ?
 	size_t offset = 0;
     callCL(clEnqueueNDRangeKernel(queue, kernel, 1, &offset, 
-            &globalWorkSize, &localWorkSize, 0, NULL, NULL));
+            &globalWorkSize, nullptr, 0, NULL, NULL));
 
 	callCL(clEnqueueReleaseGLObjects(queue, 1, &clBuffer, 0, 0, NULL));
 	callCL(clFinish(queue));
@@ -229,7 +238,6 @@ void Particles::update(float deltaTime)
 	if (noGravity)
 		return;
 	size_t globalWorkSize = NB_PARTICLES;
-	size_t localWorkSize = clProgram::getMaxGroupSize(); //TODO change that ?
 	size_t offset = 0;
 
 	deltaTime *= speed;
@@ -240,7 +248,7 @@ void Particles::update(float deltaTime)
 	clEnqueueAcquireGLObjects(clProgram::getQueue(), 1, &clBuffer, 0, 0, NULL);
 	callCL(clFinish(clProgram::getQueue()));
 
-	for (unsigned int i = 0 ; i < gravityPoints.size() && i < MAX_NB_OF_GRAVITY_POS; i++)
+	for (unsigned int i = 0 ; i < gravityPoints.size(); i++)
 	{
 		float gravityPos[3];
 		gravityPos[0] = gravityPoints[i].x;
@@ -249,12 +257,12 @@ void Particles::update(float deltaTime)
 		callCL(clEnqueueWriteBuffer(clProgram::getQueue(), gravityPosBuff, CL_TRUE, i * sizeof(float) * 3,
             sizeof(float) * 3, gravityPos, 0, NULL, NULL));
 	}
-	int numberOfGravityPoints = std::min((int)gravityPoints.size(), MAX_NB_OF_GRAVITY_POS);
+	int numberOfGravityPoints = (int)gravityPoints.size();
 	callCL(clEnqueueWriteBuffer(clProgram::getQueue(), numberOfGravityPointsBuff, CL_TRUE, 0,
 				sizeof(int), &numberOfGravityPoints, 0, NULL, NULL));
 
 	callCL(clEnqueueNDRangeKernel(clProgram::getQueue(), updateAllKernel, 1, &offset, 
-            &globalWorkSize, &localWorkSize, 0, NULL, NULL));
+            &globalWorkSize, nullptr, 0, NULL, NULL));
 	callCL(clFinish(clProgram::getQueue()));
 	callCL(clEnqueueReleaseGLObjects(clProgram::getQueue(), 1, &clBuffer, 0, 0, NULL));
 }
@@ -270,9 +278,26 @@ void Particles::removeGravityPoints()
 	gravityPoints.erase(gravityPoints.begin() + 1, gravityPoints.end());
 }
 
+std::array<float, 4> getAmbientColor(const std::array<float, 4>& baseColor)
+{
+	std::array<float, 4> ambientColor;
+	ambientColor[0] = baseColor[1] == 0.f ? 0.8f - baseColor[0] : 0.8f;
+	ambientColor[1] = baseColor[1] == 0.f ? 0.8f - baseColor[1] : 0.6f;
+	ambientColor[2] = baseColor[2] == 0.f ? 0.8f - baseColor[2] : 0.6f;
+	ambientColor[3] = 1.f;
+	if (baseColor[0] == 0.0f && baseColor[1] == 0.0f)
+		ambientColor[0] = 0.f;
+	if (baseColor[1] == 0.0f && baseColor[2] == 0.0f)
+		ambientColor[1] = 0.f;
+	if (baseColor[0] == 0.0f && baseColor[2] == 0.0f)
+		ambientColor[2] = 0.f;
+	return ambientColor;
+}
+
 void Particles::draw()
 {
-	std::array<float, 4> color = PARTICLE_COLOR;
+	std::array<float, 4> color = colors[currentColorIndex];
+	std::array<float, 4> ambientColor = getAmbientColor(color);
 	Vec3 lineDir, lineOrigin;
 
 	shader->use();
@@ -287,8 +312,11 @@ void Particles::draw()
 		vec3Data[i * 3 + 2] = gravityPoints[i].z;
 	}
 	glUniform3fv(glGetUniformLocation(shader->getID(), "gravityCenters"), gravityPoints.size(), vec3Data);
+	delete[] vec3Data;
 	glUniform1i(glGetUniformLocation(shader->getID(), "numberOfGravityCenters"), gravityPoints.size());
+    glUniform1i(glGetUniformLocation(shader->getID(), "invertColors"), invertColorsValue);
     glUniform4fv(glGetUniformLocation(shader->getID(), "myColor"), 1, &color.front());
+    glUniform4fv(glGetUniformLocation(shader->getID(), "ambientColor"), 1, &ambientColor.front());
     glBindVertexArray(VAO);
     glDrawArrays(GL_POINTS, 0, NB_PARTICLES);
 }
@@ -309,6 +337,28 @@ void Particles::changeSpeed(float value)
 void Particles::gravityOnOff()
 {
 	noGravity = !noGravity;
+}
+
+void Particles::changeColor(int dir)
+{
+	if (dir > 0)
+		currentColorIndex++;
+	else if (dir < 0)
+	{
+		if (currentColorIndex == 0)
+			currentColorIndex = colors.size() - 1;
+		else
+			currentColorIndex--;
+	}
+	if (currentColorIndex >= colors.size())
+		currentColorIndex = 0;
+}
+
+void Particles::invertColors()
+{
+	if (invertColorsValue == 1)
+		invertColorsValue = -1;
+	else invertColorsValue = 1;
 }
 
 void Particles::clear()

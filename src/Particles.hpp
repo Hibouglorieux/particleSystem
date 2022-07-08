@@ -6,17 +6,16 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:37 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/08 16:20:32 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/08 19:01:55 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #ifndef PARTICLES_CLASS_H
 # define PARTICLES_CLASS_H
-# define NB_PARTICLES 1'000'448 // needs to be a multiple of 1024 !
+# define NB_PARTICLES 1'000'000 // needs to be a multiple of 1024 !
 # define SIZE_PER_PARTICLE 6
 # define PARTICLE_SIZE 0.01f
-# define PARTICLE_COLOR {0.5f, 0.0f, 0.0f, 1.0}
 # define SEED 42L
 # define callCL(x) callCLFunc(x, #x, __LINE__)
 # define CIRCLE 1
@@ -47,6 +46,8 @@ public:
 	static void lockGravityPoint(bool isGravityStatic);
 	static void changeSpeed(float value);
 	static void gravityOnOff();
+	static void	changeColor(int dir);
+	static void	invertColors();
 private:
 	static void callCLFunc(cl_int errCode, std::string funcCall, int line);
 	static void initializeBuffers();
@@ -61,6 +62,9 @@ private:
 	static float mouseX, mouseY;
 	static float speed;
 	static std::vector<Vec3> gravityPoints;
+	static std::vector<std::array<float, 4>> colors;
+	static size_t currentColorIndex;
+	static int invertColorsValue;
 };
 
 #endif

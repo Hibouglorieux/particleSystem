@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:25 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/08 17:19:02 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/08 18:59:13 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ unsigned char Loop::frameCount = 0;
 std::vector<Line*> Loop::lines = {};
 
 #define SEC_TO_MICROSEC 1000000
-#define CAMERA_MOUVEMENT_SPEED 0.3f
+#define CAMERA_MOUVEMENT_SPEED 2.f
 #define REFRESH_FPS_RATE 0.5
 
 
@@ -76,7 +76,10 @@ void Loop::loop()
 		if (fpsRefreshTime + 0.5 > currentTimer)
 		{
 			std::stringstream ss;
-			double fps = (float)frameCount / (currentTimer - fpsRefreshTime);
+			//double fps = (float)frameCount / (currentTimer - fpsRefreshTime);
+			double fps = 1 / frameTime;
+			if (fps > 60)
+				fps = 60;
 			ss << std::setprecision(3) << fps;
 			glfwSetWindowTitle(appWindow::getWindow(), std::string(std::string("Humangl ") + ss.str()).c_str());
 			frameCount = 0;
@@ -125,7 +128,7 @@ void Loop::processInput()
 	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
 	{
 		Particles::lockGravityPoint(false);
-		//lines.push_back(new Line(mouseX, mouseY));
+		lines.push_back(new Line(mouseX, mouseY));
 	}
 	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		Particles::getCamera().rotate(mouseX - oldMouseX, mouseY - oldMouseY);
@@ -153,6 +156,12 @@ void Loop::keyCallback(GLFWwindow* window, int key, int scancode, int action, in
 		Particles::addGravityPoint();
 	if (key == GLFW_KEY_Z && action == GLFW_PRESS)
 		Particles::removeGravityPoints();
+	if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
+		Particles::changeColor(1);
+	if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
+		Particles::changeColor(-1);
+	if (key == GLFW_KEY_I && action == GLFW_PRESS)
+		Particles::invertColors();
 }
 
 void Loop::scrollCallBack(GLFWwindow* window, double xoffset, double yoffset)
