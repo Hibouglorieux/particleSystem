@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:32 by nathan            #+#    #+#             */
-/*   Updated: 2022/06/24 23:59:48 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/08 15:07:26 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 #define NEAR 0.1f
 #define FAR 1000.0f
 
+#define MAX_NB_OF_GRAVITY_POS 4
+
 bool Particles::initialized = false;
 GLuint Particles::VAO = 0;
 GLuint Particles::VBO = 0;
@@ -26,10 +28,13 @@ cl_mem Particles::timeBuff = NULL;
 cl_mem Particles::gravityPosBuff = NULL;
 cl_mem Particles::seedBuff = NULL;
 cl_mem Particles::nbParticlesBuff = NULL;
+cl_mem Particles::numberOfGravityPointsBuff = NULL;
+cl_mem Particles::shouldUpdatePosBuff = NULL;
 cl_kernel Particles::iniAsCircleKernel = NULL;
 cl_kernel Particles::iniAsSquareKernel = NULL;
 cl_kernel Particles::updateSpeedKernel = NULL;
 cl_kernel Particles::updatePosKernel = NULL;
+cl_kernel Particles::updateAllKernel = NULL;
 Shader* Particles::shader = nullptr;
 Camera Particles::camera = {0, 0, 50};
 Matrix Particles::projMat = Matrix();
@@ -91,7 +96,7 @@ void Particles::initializeBuffers()
 	clProgram::checkError("clCreateBuffer", errCode);
 
     gravityPosBuff = clCreateBuffer(clProgram::getContext(), CL_MEM_READ_ONLY, 
-             sizeof(float) * 3, NULL, &errCode);
+             sizeof(float) * 3 * MAX_NB_OF_GRAVITY_POS, NULL, &errCode);
 	clProgram::checkError("clCreateBuffer", errCode);
 
     seedBuff = clCreateBuffer(clProgram::getContext(), CL_MEM_READ_WRITE, 
@@ -100,6 +105,14 @@ void Particles::initializeBuffers()
 
     nbParticlesBuff = clCreateBuffer(clProgram::getContext(), CL_MEM_READ_ONLY, 
              sizeof(unsigned int), NULL, &errCode);
+	clProgram::checkError("clCreateBuffer", errCode);
+
+	numberOfGravityPointsBuff = clCreateBuffer(clProgram::getContext(), CL_MEM_READ_WRITE,
+			sizeof(unsigned int), NULL, &errCode);
+	clProgram::checkError("clCreateBuffer", errCode);
+
+	shouldUpdatePosBuff = clCreateBuffer(clProgram::getContext(), CL_MEM_READ_WRITE,
+			sizeof(unsigned int), NULL, &errCode);
 	clProgram::checkError("clCreateBuffer", errCode);
 
 	unsigned int sizePerParticle = SIZE_PER_PARTICLE;
@@ -158,6 +171,18 @@ void Particles::initializeOpenCL()
 		callCL(clSetKernelArg(target, 2, sizeof(timeBuff), &timeBuff));
 	}
 	callCL(clSetKernelArg(updateSpeedKernel, 3, sizeof(gravityPosBuff), &gravityPosBuff));
+
+
+	cl_program updateAllProgram = clProgram::createProgram("updateAll.cl");
+	updateAllKernel = clCreateKernel(updateAllProgram, "updateAll", &errCode);
+	clProgram::checkError("clCreateKernel", errCode);
+
+	callCL(clSetKernelArg(updateAllKernel, 0, sizeof(clBuffer), &clBuffer));
+	callCL(clSetKernelArg(updateAllKernel, 1, sizeof(sizePerParticleBuff), &sizePerParticleBuff));
+	callCL(clSetKernelArg(updateAllKernel, 2, sizeof(timeBuff), &timeBuff));
+	callCL(clSetKernelArg(updateAllKernel, 3, sizeof(gravityPosBuff), &gravityPosBuff));
+	callCL(clSetKernelArg(updateAllKernel, 4, sizeof(numberOfGravityPointsBuff), &numberOfGravityPointsBuff));
+	callCL(clSetKernelArg(updateAllKernel, 5, sizeof(shouldUpdatePosBuff), &shouldUpdatePosBuff));
 }
 
 void Particles::initializeParticlesPos(int mod)
@@ -217,13 +242,29 @@ void Particles::update(float deltaTime)
 	deltaTime *= speed;
 	float deltaTimeMultByAcceleration = deltaTime * 100000000000.0f;
 	//std::cout << deltaTime << std::endl;
-
+	
     callCL(clEnqueueWriteBuffer(clProgram::getQueue(), timeBuff, CL_FALSE, 0,
             sizeof(float), &deltaTimeMultByAcceleration, 0, NULL, NULL));
 
 	clEnqueueAcquireGLObjects(clProgram::getQueue(), 1, &clBuffer, 0, 0, NULL);
 	callCL(clFinish(clProgram::getQueue()));
 
+	for (unsigned int i = 0 ; i < gravityPoints.size() && i < MAX_NB_OF_GRAVITY_POS; i++)
+	{
+		float gravityPos[3];
+		gravityPos[0] = gravityPoints[i].x;
+		gravityPos[1] = gravityPoints[i].y;
+		gravityPos[2] = gravityPoints[i].z;
+		callCL(clEnqueueWriteBuffer(clProgram::getQueue(), gravityPosBuff, CL_TRUE, i * sizeof(float) * 3,
+            sizeof(float) * 3, gravityPos, 0, NULL, NULL));
+	}
+	callCL(clEnqueueWriteBuffer(clProgram::getQueue(), std::min(gravityPoints.size(), MAX_NB_OF_GRAVITY_POS), CL_TRUE, 0,
+				sizeof(int), numberOfGravityPointsBuff(), 0, NULL, NULL));
+
+	callCL(clEnqueueNDRangeKernel(clProgram::getQueue(), updateAllKernel, 1, &offset, 
+            &globalWorkSize, nullptr, 0, NULL, NULL));
+
+			/*
 	for (Vec3 gravityPoint : gravityPoints)
 	{
 		float gravityPos[3];
@@ -244,6 +285,7 @@ void Particles::update(float deltaTime)
             &globalWorkSize, &localWorkSize, 0, NULL, NULL));
 	callCL(clFinish(clProgram::getQueue()));
 	callCL(clEnqueueReleaseGLObjects(clProgram::getQueue(), 1, &clBuffer, 0, 0, NULL));
+	*/
 }
 
 void Particles::addGravityPoint()
@@ -306,11 +348,14 @@ void Particles::clear()
 	callCL(clReleaseMemObject(gravityPosBuff));
 	callCL(clReleaseMemObject(seedBuff));
 	callCL(clReleaseMemObject(nbParticlesBuff));
+	callCL(clReleaseMemObject(numberOfGravityPointsBuff));
+	callCL(clReleaseMemObject(shouldUpdatePosBuff));
 
     callCL(clReleaseKernel(iniAsCircleKernel));
     callCL(clReleaseKernel(iniAsSquareKernel));
 	callCL(clReleaseKernel(updateSpeedKernel));
 	callCL(clReleaseKernel(updatePosKernel));
+	callCL(clReleaseKernel(updateAllKernel));
 
 	glDeleteBuffers(1, &VBO);
 	VBO = 0;

@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:25 by nathan            #+#    #+#             */
-/*   Updated: 2022/06/24 23:22:42 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/08 15:02:03 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,7 +126,7 @@ void Loop::processInput()
 	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
 	{
 		Particles::lockGravityPoint(false);
-		lines.push_back(new Line(mouseX, mouseY));
+		//lines.push_back(new Line(mouseX, mouseY));
 	}
 	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		Particles::getCamera().rotate(mouseX - oldMouseX, mouseY - oldMouseY);
