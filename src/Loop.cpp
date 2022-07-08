@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:25 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/08 18:59:13 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/08 20:54:51 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ std::vector<Line*> Loop::lines = {};
 
 #define SEC_TO_MICROSEC 1000000
 #define CAMERA_MOUVEMENT_SPEED 2.f
-#define REFRESH_FPS_RATE 0.5
+#define REFRESH_FPS_RATE 1.0f
 
 
 void Loop::loop()
@@ -39,25 +39,15 @@ void Loop::loop()
 	glfwGetCursorPos(appWindow::getWindow(), &mouseX, &mouseY);
 	glfwSetKeyCallback(appWindow::getWindow(), Loop::keyCallback);
 	glfwSetScrollCallback(appWindow::getWindow(), Loop::scrollCallBack);
+		glEnable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(appWindow::getWindow()))
 	{
 		double currentTimer = glfwGetTime();
 		frameCount++;
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		processInput();
 
-		//update(frameTime);
-
-
-//		glEnable(GL_STENCIL_TEST);
-//		glStencilFunc(GL_EQUAL, 0, 0xFF);
-//		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-//
-//		glEnable(GL_DEPTH_TEST);
-
-
 //		glDisable(GL_DEPTH_TEST);
-//		glDisable(GL_STENCIL_TEST);
 		Particles::update((float)frameTime);
 		Particles::draw();	
 		for (Line* line : lines)
@@ -67,17 +57,10 @@ void Loop::loop()
 		glfwSwapBuffers(appWindow::getWindow());
 
 		frameTime = glfwGetTime() - currentTimer;
-		/*
-		if (frameTime < refreshingRate)
-		{
-			usleep((refreshingRate - frameTime) * SEC_TO_MICROSEC);
-		}
-		*/
-		if (fpsRefreshTime + 0.5 > currentTimer)
+		if (fpsRefreshTime + REFRESH_FPS_RATE < currentTimer)
 		{
 			std::stringstream ss;
-			//double fps = (float)frameCount / (currentTimer - fpsRefreshTime);
-			double fps = 1 / frameTime;
+			double fps = (float)frameCount / (currentTimer - fpsRefreshTime);
 			if (fps > 60)
 				fps = 60;
 			ss << std::setprecision(3) << fps;

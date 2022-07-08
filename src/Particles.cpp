@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:32 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/08 19:03:19 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/08 21:07:38 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -271,6 +271,7 @@ void Particles::addGravityPoint()
 {
 	if (gravityPoints.size() < MAX_NB_OF_GRAVITY_POS)
 		gravityPoints.push_back(camera.unProjectToOrigin(mouseX, mouseY, projMat));
+	std::cout << "added point at" << gravityPoints.back() << std::endl;
 }
 
 void Particles::removeGravityPoints()

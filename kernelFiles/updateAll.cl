@@ -13,7 +13,10 @@ __kernel void updateAll(__global float* ptr, __constant uint* sizePerParticle, _
 		float3 totalSpeed = {0, 0, 0};
 		for (int j = 0; j < *numberOfGravityPoints; j++)
 		{
-			totalSpeed += normalize(gravityPoint[j] - currentVector);
+			if (currentVector.x != gravityPoint[j].x
+				&& currentVector.y != gravityPoint[j].y
+				&& currentVector.z != gravityPoint[j].z)
+				totalSpeed += normalize(gravityPoint[j] - currentVector);
 		}
 
 		totalSpeed *= (*deltaTime * 1);
