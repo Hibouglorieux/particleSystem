@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:37 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/08 14:53:01 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/08 16:20:32 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,7 @@ private:
 	static void initializeBuffers();
 	static bool initialized;
 	static GLuint VAO, VBO;
-	static cl_mem clBuffer, sizePerParticleBuff, timeBuff, gravityPosBuff, seedBuff, nbParticlesBuff;
-	static cl_mem numberOfGravityPointsBuff, shouldUpdatePosBuff;
+	static cl_mem clBuffer, sizePerParticleBuff, timeBuff, gravityPosBuff, seedBuff, nbParticlesBuff, numberOfGravityPointsBuff;
 	static cl_kernel iniAsCircleKernel, iniAsSquareKernel, updateSpeedKernel, updatePosKernel, updateAllKernel;
 	static Camera camera;
 	static Matrix projMat;

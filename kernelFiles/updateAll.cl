@@ -1,4 +1,4 @@
-__kernel void updateAll(__global float* ptr, __constant uint* sizePerParticle, __constant float* deltaTime, __constant float3* gravityPoint, __constant int* numberOfGravityPoints, __constant int* shouldUpdatePos)
+__kernel void updateAll(__global float* ptr, __constant uint* sizePerParticle, __constant float* deltaTime, __constant float3* gravityPoint, __constant int* numberOfGravityPoints)
 {
 	int i = get_global_id(0) * *sizePerParticle;
 
@@ -7,20 +7,17 @@ __kernel void updateAll(__global float* ptr, __constant uint* sizePerParticle, _
 	currentVector.y = ptr[i + 1];
 	currentVector.z = ptr[i + 2];
 
+	float3 totalSpeed;
 	for (int j = 0; j < numberOfGravityPoints; j++)
 	{
-		float3 speed = normalize(gravityPoint[j] - currentVector) * *deltaTime;
-		ptr[i + 3] += speed.x;
-		ptr[i + 4] += speed.y;
-		ptr[i + 5] += speed.z;
+		totalSpeed += normalize(gravityPoint[j] - currentVector);
 	}
+	totalSpeed *= *deltaTime;
+	ptr[i + 3] += totalSpeed.x;
+	ptr[i + 4] += totalSpeed.y;
+	ptr[i + 5] += totalSpeed.z;
 
-
-
-	if (shouldUpdatePos)
-	{
-		currentVector.x += ptr[i + 3] * *deltaTime;
-		currentVector.y += ptr[i + 4] * *deltaTime;
-		currentVector.z += ptr[i + 5] * *deltaTime;
-	}
+	ptr[i] = ptr[i] + ptr[i + 3] * *deltaTime;
+	ptr[i + 1] = ptr[i + 1] + ptr[i + 4] * *deltaTime;
+	ptr[i + 2] = ptr[i + 2] + ptr[i + 5] * *deltaTime;
 }
