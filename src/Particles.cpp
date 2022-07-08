@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:32 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/08 16:47:07 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/08 17:24:37 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -233,11 +233,9 @@ void Particles::update(float deltaTime)
 	size_t offset = 0;
 
 	deltaTime *= speed;
-	float deltaTimeMultByAcceleration = deltaTime * 100000000000.0f;
-	//std::cout << deltaTime << std::endl;
 	
-    callCL(clEnqueueWriteBuffer(clProgram::getQueue(), timeBuff, CL_FALSE, 0,
-            sizeof(float), &deltaTimeMultByAcceleration, 0, NULL, NULL));
+    callCL(clEnqueueWriteBuffer(clProgram::getQueue(), timeBuff, CL_TRUE, 0,
+            sizeof(float), &deltaTime, 0, NULL, NULL));
 
 	clEnqueueAcquireGLObjects(clProgram::getQueue(), 1, &clBuffer, 0, 0, NULL);
 	callCL(clFinish(clProgram::getQueue()));
@@ -255,39 +253,15 @@ void Particles::update(float deltaTime)
 	callCL(clEnqueueWriteBuffer(clProgram::getQueue(), numberOfGravityPointsBuff, CL_TRUE, 0,
 				sizeof(int), &numberOfGravityPoints, 0, NULL, NULL));
 
-	std::cout << "Calling with value for updateAllkernel: " << (int*)updateAllKernel << std::endl;
 	callCL(clEnqueueNDRangeKernel(clProgram::getQueue(), updateAllKernel, 1, &offset, 
             &globalWorkSize, &localWorkSize, 0, NULL, NULL));
 	callCL(clFinish(clProgram::getQueue()));
 	callCL(clEnqueueReleaseGLObjects(clProgram::getQueue(), 1, &clBuffer, 0, 0, NULL));
-
-			/*
-	for (Vec3 gravityPoint : gravityPoints)
-	{
-		float gravityPos[3];
-		gravityPos[0] = gravityPoint.x;
-		gravityPos[1] = gravityPoint.y;
-		gravityPos[2] = gravityPoint.z;
-
-		callCL(clEnqueueWriteBuffer(clProgram::getQueue(), gravityPosBuff, CL_TRUE, 0,
-            sizeof(float) * 3, gravityPos, 0, NULL, NULL));
-		callCL(clEnqueueNDRangeKernel(clProgram::getQueue(), updateSpeedKernel, 1, &offset, 
-            &globalWorkSize, &localWorkSize, 0, NULL, NULL));
-		callCL(clFinish(clProgram::getQueue()));
-	}
-
-    callCL(clEnqueueWriteBuffer(clProgram::getQueue(), timeBuff, CL_TRUE, 0,
-            sizeof(float), &deltaTime, 0, NULL, NULL));
-	callCL(clEnqueueNDRangeKernel(clProgram::getQueue(), updatePosKernel, 1, &offset, 
-            &globalWorkSize, &localWorkSize, 0, NULL, NULL));
-	callCL(clFinish(clProgram::getQueue()));
-	callCL(clEnqueueReleaseGLObjects(clProgram::getQueue(), 1, &clBuffer, 0, 0, NULL));
-	*/
 }
 
 void Particles::addGravityPoint()
 {
-	if (gravityPoints.size() < 10)
+	if (gravityPoints.size() < MAX_NB_OF_GRAVITY_POS)
 		gravityPoints.push_back(camera.unProjectToOrigin(mouseX, mouseY, projMat));
 }
 
