@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:37 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/15 11:19:34 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/15 15:24:26 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ private:
 	static bool initialized;
 	static GLuint VAO, VBO;
 	static cl_mem clBuffer, sizePerParticleBuff, timeBuff, gravityPosBuff, seedBuff, nbParticlesBuff, numberOfGravityPointsBuff;
-	static cl_kernel iniAsCircleKernel, iniAsSquareKernel, updateSpeedKernel, updatePosKernel, updateAllKernel;
+	static cl_kernel iniAsCircleKernel, iniAsSquareKernel, updateAllKernel;
 	static Camera camera;
 	static Matrix projMat;
 	static Shader* shader;

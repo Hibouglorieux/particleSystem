@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:32 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/15 14:56:37 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/15 15:24:37 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,6 @@ cl_mem Particles::nbParticlesBuff = NULL;
 cl_mem Particles::numberOfGravityPointsBuff = NULL;
 cl_kernel Particles::iniAsCircleKernel = NULL;
 cl_kernel Particles::iniAsSquareKernel = NULL;
-cl_kernel Particles::updateSpeedKernel = NULL;
-cl_kernel Particles::updatePosKernel = NULL;
 cl_kernel Particles::updateAllKernel = NULL;
 Shader* Particles::shader = nullptr;
 Camera Particles::camera = {0, 0, 50};
@@ -90,7 +88,13 @@ void Particles::initializeBuffers()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * SIZE_PER_PARTICLE * particlesNb, NULL, GL_DYNAMIC_DRAW);//TODO test draw / read / copy
-	//TODO try with half type instead of float
+
+	GLenum err;
+	if ((err = glGetError()) != GL_NO_ERROR)
+	{
+		std::cout << "OpenGL error after particle buffer allocation: " << (int)err << std::endl;
+		exit(-1);
+	}
 
     glEnableVertexAttribArray(0);	
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, SIZE_PER_PARTICLE * sizeof(float), (void*)0);
@@ -166,25 +170,6 @@ void Particles::initializeOpenCL()
 		callCL(clSetKernelArg(target, 2, sizeof(nbParticlesBuff), &nbParticlesBuff));
 		callCL(clSetKernelArg(target, 3, sizeof(sizePerParticleBuff), &sizePerParticleBuff));
 	}
-
-	cl_program updateSpeedProgram = clProgram::createProgram("updateSpeed.cl");
-    updateSpeedKernel = clCreateKernel(updateSpeedProgram, "updateSpeed", &errCode);
-	clProgram::checkError("clCreateKernel", errCode);
-
-	cl_program updatePosProgram = clProgram::createProgram("updatePosition.cl");
-	updatePosKernel = clCreateKernel(updatePosProgram, "updatePosition", &errCode);
-	clProgram::checkError("clCreateKernel", errCode);
-
-
-	for (int i = 0; i < 2; i++)
-	{
-		cl_kernel target = i == 0 ? updateSpeedKernel : updatePosKernel;
-		callCL(clSetKernelArg(target, 0, sizeof(clBuffer), &clBuffer));
-		callCL(clSetKernelArg(target, 1, sizeof(sizePerParticleBuff), &sizePerParticleBuff));
-		callCL(clSetKernelArg(target, 2, sizeof(timeBuff), &timeBuff));
-	}
-	callCL(clSetKernelArg(updateSpeedKernel, 3, sizeof(gravityPosBuff), &gravityPosBuff));
-
 	cl_program updateAllProgram = clProgram::createProgram("updateAll.cl");
 	updateAllKernel = clCreateKernel(updateAllProgram, "updateAll", &errCode);
 	clProgram::checkError("clCreateKernel", errCode);
@@ -402,7 +387,7 @@ void Particles::changeDistanceLightStrength(float value)
 void Particles::clear()
 {
 	callCL(clReleaseMemObject(sizePerParticleBuff));
-	callCL(clReleaseMemObject(clBuffer));//TODO check if needed
+	callCL(clReleaseMemObject(clBuffer));
 	callCL(clReleaseMemObject(timeBuff));
 	callCL(clReleaseMemObject(gravityPosBuff));
 	callCL(clReleaseMemObject(seedBuff));
@@ -411,8 +396,6 @@ void Particles::clear()
 
     callCL(clReleaseKernel(iniAsCircleKernel));
     callCL(clReleaseKernel(iniAsSquareKernel));
-	callCL(clReleaseKernel(updateSpeedKernel));
-	callCL(clReleaseKernel(updatePosKernel));
 	callCL(clReleaseKernel(updateAllKernel));
 
 	glDeleteBuffers(1, &VBO);

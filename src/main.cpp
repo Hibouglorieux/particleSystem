@@ -6,7 +6,7 @@
 /*   By: nathan <nallani@student.s19.be>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 01:52:59 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/15 11:08:39 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/15 15:01:34 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@ int		main(int argc, char* argv[])
 	int particlesNumber = 0;
 	if (argc != 1)
 		particlesNumber = std::atoi(argv[1]);
-	std::cout << particlesNumber << std::endl;
 
 	int width, height;
 	appWindow::getWindowSize(&width, &height);

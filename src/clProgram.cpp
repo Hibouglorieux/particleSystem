@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:02:51 by nathan            #+#    #+#             */
-/*   Updated: 2022/06/24 23:54:32 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/15 15:07:27 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,6 +182,6 @@ void clProgram::checkError(std::string functionName, cl_int errCode)
 	if (errCode != CL_SUCCESS)
 	{
 		std::cout << "Error: no CL_SUCCESS(" << (int)errCode << ") with: " << functionName << std::endl;
-		exit(0);
+		exit(-1);
 	}
 }
