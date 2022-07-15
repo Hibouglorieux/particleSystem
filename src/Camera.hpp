@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/02 01:10:32 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/09 03:46:32 by nathan           ###   ########.fr       */
+/*   Updated: 2022/07/15 14:39:50 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,11 @@ public:
 	Vec3 getDirection() const;
 	Vec3 getPos() const;// TODO maybe test with a matrix.getTranslationVector instead for lookAt
 	Matrix getMatrix() const;
+
 	std::pair<Vec3, Vec3> unProject(float mouseX, float mouseY, Matrix projMat);
 	Vec3 unProjectToOrigin(float mouseX, float mouseY, Matrix projMat);
+	void	changeProjectionDistance(float value);
+	bool	isScalingWithDistance;
 private:
 	bool hasTarget;
 	Vec3 target;
@@ -47,6 +50,8 @@ private:
 	Matrix rotMat;
 	Vec3 dir;
 	Vec3 pos;
+
+	float projectionDistance;
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/02 01:10:29 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/15 11:09:05 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/15 14:54:29 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 
 #define X_ROTATION_SPEED 1
 #define Y_ROTATION_SPEED 1
+
+#define DEFAULT_PROJECTION_DISTANCE 50.f
+#define PROJECTION_DISTANCE_FACTOR 20.f
 
 Camera::Camera() : Camera(Vec3(0, 0, 50))
 {
@@ -30,6 +33,8 @@ Camera::Camera(Vec3 position)
 	hasTarget = false;
 	dir = {0, 0, 0};
 	actualizeView();
+	isScalingWithDistance = true;
+	projectionDistance = DEFAULT_PROJECTION_DISTANCE;
 }
 
 Vec3 Camera::getPos() const
@@ -172,7 +177,14 @@ void Camera::actualizeView()
 	}
 }
 
-#define POINT_DISTANCE_FROM_CAMERA 60.f
+void Camera::changeProjectionDistance(float value)
+{
+	value *= PROJECTION_DISTANCE_FACTOR;
+	if (projectionDistance + value > 0)
+		projectionDistance += value;
+	if (value == 0)
+		projectionDistance = DEFAULT_PROJECTION_DISTANCE;
+}
 
 Vec3 Camera::unProjectToOrigin(float mouseX, float mouseY, Matrix projMat)
 {
@@ -181,11 +193,7 @@ Vec3 Camera::unProjectToOrigin(float mouseX, float mouseY, Matrix projMat)
 	Vec3 point2 = std::get<1>(points);
 	Vec3 direction = point2 - point1;
 	direction = direction.getNormalized();
-	return pos + direction * pos.getLength();
-	Vec3 origin(0, 0, 0);
-
-	float result = (origin - point1).dot(direction) / direction.dot(direction);
-	return point1 + (direction * result);
+	return point1 + direction * (isScalingWithDistance ? point1.getLength() : projectionDistance);
 	/*
 	 *
 	 * plane with three points 1, 0, 0
@@ -209,7 +217,7 @@ std::pair<Vec3, Vec3> Camera::unProject(float mouseX, float mouseY, Matrix projM
 	mouseY = height - mouseY;
 
 	point1 = {mouseX, mouseY, 0.f};
-	point2 = {mouseX, mouseY, 1.f};
+	point2 = {mouseX, mouseY, 0.2f};
 
 
 	point1.x = point1.x / (width * 0.5f) - 1.0f;

@@ -25,6 +25,7 @@ float interpolate(float value, float minimum, float maximum)
 void main()
 {
 	float lightValue =  interpolate(gravityCenterData.distanceFromGravityCenter, 1.0f, distanceLightStrength);
+
 	if (invertColors == 1)
 		FragColor = myColor + ambientColor * (1 - lightValue);
 	else

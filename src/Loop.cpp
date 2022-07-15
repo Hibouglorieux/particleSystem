@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:25 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/15 11:27:42 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/15 14:56:29 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,14 +98,14 @@ void Loop::processInput()
 		Particles::getCamera().moveDown();
 
 	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_UP) == GLFW_PRESS)
-		Particles::changeSpeed(0.05f);
+		Particles::changeSpeed(1);
 	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_DOWN) == GLFW_PRESS)
-		Particles::changeSpeed(-0.05f);
+		Particles::changeSpeed(-1);
 
 	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_KP_1) == GLFW_PRESS)
-		Particles::changeDistanceLightStrength(-2.f);
+		Particles::changeDistanceLightStrength(-1.f);
 	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_KP_3) == GLFW_PRESS)
-		Particles::changeDistanceLightStrength(2.f);
+		Particles::changeDistanceLightStrength(1.f);
 
 	double oldMouseX = mouseX;
 	double oldMouseY = mouseY;
@@ -150,6 +150,16 @@ void Loop::keyCallback(GLFWwindow* window, int key, int scancode, int action, in
 		Particles::changeColor(-1);
 	if (key == GLFW_KEY_I && action == GLFW_PRESS)
 		Particles::invertColors();
+	if (key == GLFW_KEY_KP_2 && action == GLFW_PRESS)
+		Particles::changeDistanceLightStrength(0);
+	if (key == GLFW_KEY_KP_4 && action == GLFW_PRESS)
+		Particles::getCamera().changeProjectionDistance(-1);
+	if (key == GLFW_KEY_KP_5 && action == GLFW_PRESS)
+		Particles::getCamera().changeProjectionDistance(0);
+	if (key == GLFW_KEY_KP_6 && action == GLFW_PRESS)
+		Particles::getCamera().changeProjectionDistance(1);
+	if (key == GLFW_KEY_KP_8 && action == GLFW_PRESS)
+		Particles::getCamera().isScalingWithDistance = !Particles::getCamera().isScalingWithDistance;
 }
 
 void Loop::scrollCallBack(GLFWwindow* window, double xoffset, double yoffset)

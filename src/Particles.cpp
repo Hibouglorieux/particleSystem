@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:32 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/15 11:42:56 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/15 14:56:37 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,12 @@
 #define NEAR 0.01f
 #define FAR 100000.0f
 
+#define DEFAULT_DLS 80.f
+
 #define MAX_NB_OF_GRAVITY_POS 4
+
+#define PARTICLE_SPEED_FACTOR 0.1f
+#define DISTANCE_LIGHT_STRENGH_FACTOR 2.f;
 
 bool Particles::initialized = false;
 GLuint Particles::VAO = 0;
@@ -48,7 +53,6 @@ int Particles::invertColorsValue = 1;
 size_t	Particles::currentColorIndex = 0;
 std::vector<std::array<float, 4>> Particles::colors = {
 	{0.5f, 0.0f, 0.0f, 1.0},
-	{0.5f, 0.1f, 0.0f, 1.0},
 	{0.0f, 0.5f, 0.0f, 1.0},
 	{0.0f, 0.0f, 0.5f, 1.0},
 	{0.5f, 0.0f, 0.3f, 1.0},
@@ -56,7 +60,7 @@ std::vector<std::array<float, 4>> Particles::colors = {
 	{0.9f, 0.0f, 0.5f, 1.0}
 };
 int	Particles::particlesNb = DEFAULT_NB_PARTICLES;
-float Particles::distanceLightStrength = 80.f;
+float Particles::distanceLightStrength = DEFAULT_DLS;
 
 void Particles::initialize(int particlesNumber)
 {
@@ -303,8 +307,6 @@ void Particles::removeGravityPoints()
 
 std::array<float, 4> getAmbientColor(const std::array<float, 4>& baseColor)
 {
-	if (baseColor[0] == 0.5f && baseColor[1] == 0.1f && baseColor[2] == 0)
-		return /*std::array<float, 4>*/{0.5f, 0.8f, 0, 1.0f};
 	std::array<float, 4> ambientColor;
 	ambientColor[0] = baseColor[1] == 0.f ? 0.8f - baseColor[0] : 0.8f;
 	ambientColor[1] = baseColor[1] == 0.f ? 0.8f - baseColor[1] : 0.6f;
@@ -355,6 +357,7 @@ void Particles::lockGravityPoint(bool gravityStatic)
 
 void Particles::changeSpeed(float value)
 {
+	value *= PARTICLE_SPEED_FACTOR;
 	speed += value;
 	if (speed < 0.3f)
 		speed = 0.3f;
@@ -389,8 +392,11 @@ void Particles::invertColors()
 
 void Particles::changeDistanceLightStrength(float value)
 {
+	value *= DISTANCE_LIGHT_STRENGH_FACTOR;
 	if (distanceLightStrength + value > 0)
 		distanceLightStrength += value;
+	if (value == 0)
+		distanceLightStrength = DEFAULT_DLS;
 }
 
 void Particles::clear()
