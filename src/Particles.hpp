@@ -6,14 +6,14 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:37 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/08 19:01:55 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/15 11:19:34 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #ifndef PARTICLES_CLASS_H
 # define PARTICLES_CLASS_H
-# define NB_PARTICLES 1'000'000 // needs to be a multiple of 1024 !
+# define DEFAULT_NB_PARTICLES 1'000'000 // needs to be a multiple of 1024 !
 # define SIZE_PER_PARTICLE 6
 # define PARTICLE_SIZE 0.01f
 # define SEED 42L
@@ -31,7 +31,7 @@
 
 class Particles {
 public:
-	static void initialize();
+	static void initialize(int particlesNumber);
 	static void initializeOpenGL();
 	static void initializeOpenCL();
 	static void initializeParticlesPos(int mod);
@@ -48,6 +48,7 @@ public:
 	static void gravityOnOff();
 	static void	changeColor(int dir);
 	static void	invertColors();
+	static void changeDistanceLightStrength(float value);
 private:
 	static void callCLFunc(cl_int errCode, std::string funcCall, int line);
 	static void initializeBuffers();
@@ -65,6 +66,9 @@ private:
 	static std::vector<std::array<float, 4>> colors;
 	static size_t currentColorIndex;
 	static int invertColorsValue;
+	static int particlesNb;
+
+	static float distanceLightStrength;
 };
 
 #endif

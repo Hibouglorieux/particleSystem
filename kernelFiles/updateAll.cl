@@ -19,14 +19,14 @@ __kernel void updateAll(__global float* ptr, __constant uint* sizePerParticle, _
 				totalSpeed += normalize(gravityPoint[j] - currentVector);
 		}
 
-		totalSpeed *= (*deltaTime * 1);
+		totalSpeed *= *deltaTime;
 		ptr[i + 3] += totalSpeed.x;
 		ptr[i + 4] += totalSpeed.y;
 		ptr[i + 5] += totalSpeed.z;
 	}
 
 	//updatePos
-	ptr[i] = ptr[i] + ptr[i + 3] * *deltaTime;
-	ptr[i + 1] = ptr[i + 1] + ptr[i + 4] * *deltaTime;
-	ptr[i + 2] = ptr[i + 2] + ptr[i + 5] * *deltaTime;
+	ptr[i] += ptr[i + 3] * *deltaTime;
+	ptr[i + 1] += ptr[i + 4] * *deltaTime;
+	ptr[i + 2] += ptr[i + 5] * *deltaTime;
 }

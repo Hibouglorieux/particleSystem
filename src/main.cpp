@@ -6,7 +6,7 @@
 /*   By: nathan <nallani@student.s19.be>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 01:52:59 by nathan            #+#    #+#             */
-/*   Updated: 2021/12/02 14:31:25 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/15 11:08:39 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,7 @@
 #include <iostream>
 #include <CL/cl.h>
 
-using namespace std;
-
-int		main( void )
+int		main(int argc, char* argv[])
 {
 	if (!appWindow::init())
 		return (0);
@@ -35,10 +33,14 @@ int		main( void )
 		std::cerr <<  "Failed to initialize GLEW\n" << std::endl;
 		return 0;
 	}
+	int particlesNumber = 0;
+	if (argc != 1)
+		particlesNumber = std::atoi(argv[1]);
+	std::cout << particlesNumber << std::endl;
 
 	int width, height;
 	appWindow::getWindowSize(&width, &height);
-	Particles::initialize();
+	Particles::initialize(particlesNumber);
 
 	glViewport(0, 0, width, height);
 	Loop::loop();

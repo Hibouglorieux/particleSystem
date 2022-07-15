@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:32 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/08 21:07:38 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/15 11:42:56 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 #include <utility>
 
 #define FOV 60.0f
-#define NEAR 0.1f
-#define FAR 1000.0f
+#define NEAR 0.01f
+#define FAR 100000.0f
 
 #define MAX_NB_OF_GRAVITY_POS 4
 
@@ -48,17 +48,22 @@ int Particles::invertColorsValue = 1;
 size_t	Particles::currentColorIndex = 0;
 std::vector<std::array<float, 4>> Particles::colors = {
 	{0.5f, 0.0f, 0.0f, 1.0},
+	{0.5f, 0.1f, 0.0f, 1.0},
 	{0.0f, 0.5f, 0.0f, 1.0},
 	{0.0f, 0.0f, 0.5f, 1.0},
 	{0.5f, 0.0f, 0.3f, 1.0},
 	{0.0f, 0.7f, 0.7f, 1.0},
 	{0.9f, 0.0f, 0.5f, 1.0}
 };
+int	Particles::particlesNb = DEFAULT_NB_PARTICLES;
+float Particles::distanceLightStrength = 80.f;
 
-void Particles::initialize()
+void Particles::initialize(int particlesNumber)
 {
 	if (!initialized)
 	{
+		if (particlesNumber > 0)
+			particlesNb = particlesNumber;
 		projMat = Matrix::createProjMatrix(FOV, (float)appWindow::getWindowWidth() / (float)appWindow::getWindowHeight(), NEAR, FAR);
 		clProgram::initialize();
 		initialized = true;
@@ -80,7 +85,7 @@ void Particles::initializeBuffers()
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * SIZE_PER_PARTICLE * NB_PARTICLES, NULL, GL_DYNAMIC_DRAW);//TODO test draw / read / copy
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * SIZE_PER_PARTICLE * particlesNb, NULL, GL_DYNAMIC_DRAW);//TODO test draw / read / copy
 	//TODO try with half type instead of float
 
     glEnableVertexAttribArray(0);	
@@ -113,7 +118,7 @@ void Particles::initializeBuffers()
 	clProgram::checkError("clCreateBuffer", errCode);
 
     nbParticlesBuff = clCreateBuffer(clProgram::getContext(), CL_MEM_READ_ONLY, 
-             sizeof(unsigned int), NULL, &errCode);
+             sizeof(int), NULL, &errCode);
 	clProgram::checkError("clCreateBuffer", errCode);
 
 	numberOfGravityPointsBuff = clCreateBuffer(clProgram::getContext(), CL_MEM_READ_WRITE,
@@ -128,9 +133,8 @@ void Particles::initializeBuffers()
     callCL(clEnqueueWriteBuffer(clProgram::getQueue(), seedBuff, CL_TRUE, 0,
             sizeof(unsigned long), &seed, 0, NULL, NULL));
 
-	unsigned int nbParticles = NB_PARTICLES;
     callCL(clEnqueueWriteBuffer(clProgram::getQueue(), nbParticlesBuff, CL_TRUE, 0,
-            sizeof(unsigned int), &nbParticles, 0, NULL, NULL));
+            sizeof(int), &particlesNb, 0, NULL, NULL));
 }
 
 void Particles::initializeOpenGL()
@@ -213,6 +217,7 @@ void Particles::initializeParticlesPos(int mod)
 
 	callCL(clEnqueueReleaseGLObjects(queue, 1, &clBuffer, 0, 0, NULL));
 	callCL(clFinish(queue));
+	noGravity = true;
 }
 
 void Particles::callCLFunc(cl_int errCode, std::string funcCall, int line)
@@ -226,18 +231,26 @@ void Particles::setCurrentMouse(float mouse_x, float mouse_y)
 	mouseY = mouse_y;
 	if (shouldSaveMouseCoords)
 	{
-		gravityPoints[0] = camera.unProjectToOrigin(mouseX, mouseY, projMat);
-		shouldSaveMouseCoords = false;
+		Vec3 projected = camera.unProjectToOrigin(mouseX, mouseY, projMat);
+		if (!(std::isnan(projected.x) || std::isnan(projected.y) || std::isnan(projected.z)))
+		{
+			gravityPoints[0] = projected;
+			shouldSaveMouseCoords = false;
+		}
 	}
 }
 
 void Particles::update(float deltaTime)
 {
 	if (!isGravityStatic)
-		gravityPoints[0] = camera.unProjectToOrigin(mouseX, mouseY, projMat);
+	{
+		Vec3 projected = camera.unProjectToOrigin(mouseX, mouseY, projMat);
+		if (!(std::isnan(projected.x) || std::isnan(projected.y) || std::isnan(projected.z)))
+			gravityPoints[0] = projected;
+	}
 	if (noGravity)
 		return;
-	size_t globalWorkSize = NB_PARTICLES;
+	size_t globalWorkSize = particlesNb;
 	size_t offset = 0;
 
 	deltaTime *= speed;
@@ -270,8 +283,17 @@ void Particles::update(float deltaTime)
 void Particles::addGravityPoint()
 {
 	if (gravityPoints.size() < MAX_NB_OF_GRAVITY_POS)
-		gravityPoints.push_back(camera.unProjectToOrigin(mouseX, mouseY, projMat));
-	std::cout << "added point at" << gravityPoints.back() << std::endl;
+	{	
+		Vec3 projected = camera.unProjectToOrigin(mouseX, mouseY, projMat);
+		if (std::isnan(projected.x) || std::isnan(projected.y) || std::isnan(projected.z))
+		{
+			if (!isGravityStatic)
+				gravityPoints.push_back(gravityPoints[0]);// last known point
+			//else woopsie doopsie
+		}
+		else
+			gravityPoints.push_back(projected);
+	}
 }
 
 void Particles::removeGravityPoints()
@@ -281,6 +303,8 @@ void Particles::removeGravityPoints()
 
 std::array<float, 4> getAmbientColor(const std::array<float, 4>& baseColor)
 {
+	if (baseColor[0] == 0.5f && baseColor[1] == 0.1f && baseColor[2] == 0)
+		return /*std::array<float, 4>*/{0.5f, 0.8f, 0, 1.0f};
 	std::array<float, 4> ambientColor;
 	ambientColor[0] = baseColor[1] == 0.f ? 0.8f - baseColor[0] : 0.8f;
 	ambientColor[1] = baseColor[1] == 0.f ? 0.8f - baseColor[1] : 0.6f;
@@ -318,8 +342,9 @@ void Particles::draw()
     glUniform1i(glGetUniformLocation(shader->getID(), "invertColors"), invertColorsValue);
     glUniform4fv(glGetUniformLocation(shader->getID(), "myColor"), 1, &color.front());
     glUniform4fv(glGetUniformLocation(shader->getID(), "ambientColor"), 1, &ambientColor.front());
+    glUniform1f(glGetUniformLocation(shader->getID(), "distanceLightStrength"), distanceLightStrength);
     glBindVertexArray(VAO);
-    glDrawArrays(GL_POINTS, 0, NB_PARTICLES);
+    glDrawArrays(GL_POINTS, 0, particlesNb);
 }
 
 void Particles::lockGravityPoint(bool gravityStatic)
@@ -360,6 +385,12 @@ void Particles::invertColors()
 	if (invertColorsValue == 1)
 		invertColorsValue = -1;
 	else invertColorsValue = 1;
+}
+
+void Particles::changeDistanceLightStrength(float value)
+{
+	if (distanceLightStrength + value > 0)
+		distanceLightStrength += value;
 }
 
 void Particles::clear()

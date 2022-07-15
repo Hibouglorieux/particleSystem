@@ -6,7 +6,7 @@ uniform mat4 precalcMat;
 uniform vec3 gravityCenters[10];
 uniform int numberOfGravityCenters;
 out vec3 worldPos;
-out vec3 speedColor;
+//out vec3 speedColor;
 out float distanceFromGravityCenter;
 
 struct s_gravityCenterData
@@ -40,6 +40,6 @@ void main()
 {
 	gl_Position = precalcMat * vec4(pos, 1.0);
 	worldPos = pos;
-	speedColor = abs(speed);
+	//speedColor = abs(speed);
 	gravityCenterData = getClosestGravityCenter();
 }

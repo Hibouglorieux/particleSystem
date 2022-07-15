@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:25 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/08 20:54:51 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/15 11:27:42 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,8 @@ void Loop::loop()
 	glfwGetCursorPos(appWindow::getWindow(), &mouseX, &mouseY);
 	glfwSetKeyCallback(appWindow::getWindow(), Loop::keyCallback);
 	glfwSetScrollCallback(appWindow::getWindow(), Loop::scrollCallBack);
-		glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(appWindow::getWindow()))
 	{
 		double currentTimer = glfwGetTime();
@@ -47,7 +48,6 @@ void Loop::loop()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		processInput();
 
-//		glDisable(GL_DEPTH_TEST);
 		Particles::update((float)frameTime);
 		Particles::draw();	
 		for (Line* line : lines)
@@ -102,17 +102,22 @@ void Loop::processInput()
 	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_DOWN) == GLFW_PRESS)
 		Particles::changeSpeed(-0.05f);
 
+	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_KP_1) == GLFW_PRESS)
+		Particles::changeDistanceLightStrength(-2.f);
+	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_KP_3) == GLFW_PRESS)
+		Particles::changeDistanceLightStrength(2.f);
+
 	double oldMouseX = mouseX;
 	double oldMouseY = mouseY;
-	glfwGetCursorPos(appWindow::getWindow(), &mouseX, &mouseY);
 	Particles::setCurrentMouse(mouseX, mouseY);
 	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 		Particles::lockGravityPoint(true);
 	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
 	{
 		Particles::lockGravityPoint(false);
-		lines.push_back(new Line(mouseX, mouseY));
+		//lines.push_back(new Line(mouseX, mouseY));
 	}
+	glfwGetCursorPos(appWindow::getWindow(), &mouseX, &mouseY);
 	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 		Particles::getCamera().rotate(mouseX - oldMouseX, mouseY - oldMouseY);
 	// VISUAL RAYCASTING

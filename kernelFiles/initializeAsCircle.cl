@@ -1,9 +1,9 @@
 #define CIRCLE_DIAMETER 20.0f
 #include "kernelFiles/commonFunctions.cl"
 
-__kernel void initializeAsCircle(__global float *ptr, __global ulong *seed, __constant uint *nbParticles, __constant uint *sizePerParticle)
+__kernel void initializeAsCircle(__global float *ptr, __global ulong *seed, __constant int *nbParticles, __constant uint *sizePerParticle)
 {
-	for (uint i = 0; i < *nbParticles; i++)
+	for (int i = 0; i < *nbParticles; i++)
 	{
 		int j = i * *sizePerParticle;
 		__private float3 randomFloat = randomizePosition(seed);

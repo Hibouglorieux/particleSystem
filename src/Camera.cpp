@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/09/02 01:10:29 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/08 17:43:59 by nallani          ###   ########.fr       */
+/*   Updated: 2022/07/15 11:09:05 by nallani          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ Camera::Camera(float x, float y, float z) : Camera(Vec3(x, y, z))
 
 Camera::Camera(Vec3 position)
 {
-	std::cout << "camera created :";
 	this->pos = position;
 	hasTarget = false;
 	dir = {0, 0, 0};
@@ -173,6 +172,8 @@ void Camera::actualizeView()
 	}
 }
 
+#define POINT_DISTANCE_FROM_CAMERA 60.f
+
 Vec3 Camera::unProjectToOrigin(float mouseX, float mouseY, Matrix projMat)
 {
 	std::pair<Vec3, Vec3> points = unProject(mouseX, mouseY, projMat);
@@ -180,7 +181,7 @@ Vec3 Camera::unProjectToOrigin(float mouseX, float mouseY, Matrix projMat)
 	Vec3 point2 = std::get<1>(points);
 	Vec3 direction = point2 - point1;
 	direction = direction.getNormalized();
-	//return pos + direction * pos.getLength();
+	return pos + direction * pos.getLength();
 	Vec3 origin(0, 0, 0);
 
 	float result = (origin - point1).dot(direction) / direction.dot(direction);
