@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:25 by nathan            #+#    #+#             */
-/*   Updated: 2023/06/19 15:38:39 by nathan           ###   ########.fr       */
+/*   Updated: 2023/06/19 16:07:27 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ const double Loop::refreshingRate = 1.0 / FPS;
 double Loop::mouseX = 0.0;
 double Loop::mouseY = 0.0;
 double Loop::fpsRefreshTime = 0.0;
-unsigned char Loop::frameCount = 0;
+unsigned int Loop::frameCount = 0;
 
 #define SEC_TO_MICROSEC 1000000
 #define CAMERA_MOUVEMENT_SPEED 100.f
@@ -59,7 +59,7 @@ void Loop::loop()
 		{
 			std::stringstream ss;
 			double fps = (float)frameCount / (currentTimer - fpsRefreshTime);
-			ss << std::setprecision(3) << fps;
+			ss << std::setprecision(4) << fps;
 			glfwSetWindowTitle(appWindow::getWindow(), std::string(std::string("particleSystem ") + ss.str()).c_str());
 			frameCount = 0;
 			fpsRefreshTime = currentTimer;

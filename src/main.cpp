@@ -6,7 +6,7 @@
 /*   By: nathan <nallani@student.s19.be>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 01:52:59 by nathan            #+#    #+#             */
-/*   Updated: 2023/06/19 14:51:42 by nathan           ###   ########.fr       */
+/*   Updated: 2023/06/19 16:06:20 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,10 @@ int		main(int argc, char* argv[])
 	if (particlesNumber <= 0)
 		particlesNumber = DEFAULT_NB_PARTICLES;
 	if (particlesNumber > MAX_NB_PARTICLES)
+	{
+		std::cout << "Warning, too many particles given, will initialize at 8 000 000 particles instead" << std::endl;
 		particlesNumber = MAX_NB_PARTICLES;
+	}
 
 	int width, height;
 	appWindow::getWindowSize(&width, &height);

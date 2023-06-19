@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:30 by nathan            #+#    #+#             */
-/*   Updated: 2023/06/19 15:08:55 by nathan           ###   ########.fr       */
+/*   Updated: 2023/06/19 16:04:57 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ private:
 	static bool shouldStop;
 	static double frameTime;
 	static double fpsRefreshTime;
-	static unsigned char frameCount;
+	static unsigned int frameCount;
 	static double mouseX, mouseY;
 	const static double refreshingRate;
 };

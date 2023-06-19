@@ -6,14 +6,14 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:37 by nathan            #+#    #+#             */
-/*   Updated: 2023/06/19 15:59:27 by nathan           ###   ########.fr       */
+/*   Updated: 2023/06/19 16:07:03 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #ifndef PARTICLES_CLASS_H
 # define PARTICLES_CLASS_H
-# define DEFAULT_NB_PARTICLES 1'000'000 // needs to be a multiple of 1024 !
+# define DEFAULT_NB_PARTICLES 1'000'000
 # define SIZE_PER_PARTICLE 6
 # define PARTICLE_SIZE 0.01f
 # define SEED 42L
