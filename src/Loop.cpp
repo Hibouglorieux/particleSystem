@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:25 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/15 14:56:29 by nallani          ###   ########.fr       */
+/*   Updated: 2023/06/19 15:00:33 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,9 @@ double Loop::mouseX = 0.0;
 double Loop::mouseY = 0.0;
 double Loop::fpsRefreshTime = 0.0;
 unsigned char Loop::frameCount = 0;
-std::vector<Line*> Loop::lines = {};
 
 #define SEC_TO_MICROSEC 1000000
-#define CAMERA_MOUVEMENT_SPEED 2.f
+#define CAMERA_MOUVEMENT_SPEED 0.2f
 #define REFRESH_FPS_RATE 1.0f
 
 
@@ -50,8 +49,6 @@ void Loop::loop()
 
 		Particles::update((float)frameTime);
 		Particles::draw();	
-		for (Line* line : lines)
-			line->draw();
 		glFinish();
 
 		glfwSwapBuffers(appWindow::getWindow());
@@ -69,9 +66,6 @@ void Loop::loop()
 			fpsRefreshTime = currentTimer;
 		}
 	}
-	for (Line* line : lines)
-		delete line;
-	lines.clear();
 }
 
 void Loop::processInput()
@@ -115,7 +109,6 @@ void Loop::processInput()
 	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
 	{
 		Particles::lockGravityPoint(false);
-		//lines.push_back(new Line(mouseX, mouseY));
 	}
 	glfwGetCursorPos(appWindow::getWindow(), &mouseX, &mouseY);
 	if (glfwGetMouseButton(appWindow::getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)

@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:30 by nathan            #+#    #+#             */
-/*   Updated: 2022/06/24 23:24:55 by nallani          ###   ########.fr       */
+/*   Updated: 2023/06/19 15:01:07 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,6 @@
 #include <vector>
 #include "ParticleSystem.h"
 #include "appWindow.hpp"
-//TMP
-#include "Line.hpp"
 
 class Loop {
 public:
@@ -33,7 +31,6 @@ private:
 	static unsigned char frameCount;
 	static double mouseX, mouseY;
 	const static double refreshingRate;
-	static std::vector<Line*> lines;
 };
 
 #endif
