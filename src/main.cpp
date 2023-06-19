@@ -6,7 +6,7 @@
 /*   By: nathan <nallani@student.s19.be>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 01:52:59 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/15 15:01:34 by nallani          ###   ########.fr       */
+/*   Updated: 2023/06/19 14:51:42 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@
 #include <iostream>
 #include <CL/cl.h>
 
+#define MAX_NB_PARTICLES 8'000'000
+
 int		main(int argc, char* argv[])
 {
 	if (!appWindow::init())
@@ -36,6 +38,10 @@ int		main(int argc, char* argv[])
 	int particlesNumber = 0;
 	if (argc != 1)
 		particlesNumber = std::atoi(argv[1]);
+	if (particlesNumber <= 0)
+		particlesNumber = DEFAULT_NB_PARTICLES;
+	if (particlesNumber > MAX_NB_PARTICLES)
+		particlesNumber = MAX_NB_PARTICLES;
 
 	int width, height;
 	appWindow::getWindowSize(&width, &height);

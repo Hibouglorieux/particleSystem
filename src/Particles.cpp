@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:32 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/15 15:24:37 by nallani          ###   ########.fr       */
+/*   Updated: 2023/06/19 15:58:50 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,8 +64,7 @@ void Particles::initialize(int particlesNumber)
 {
 	if (!initialized)
 	{
-		if (particlesNumber > 0)
-			particlesNb = particlesNumber;
+		particlesNb = particlesNumber;
 		projMat = Matrix::createProjMatrix(FOV, (float)appWindow::getWindowWidth() / (float)appWindow::getWindowHeight(), NEAR, FAR);
 		clProgram::initialize();
 		initialized = true;
@@ -87,7 +86,7 @@ void Particles::initializeBuffers()
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * SIZE_PER_PARTICLE * particlesNb, NULL, GL_DYNAMIC_DRAW);//TODO test draw / read / copy
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * SIZE_PER_PARTICLE * particlesNb, NULL, GL_DYNAMIC_DRAW);
 
 	GLenum err;
 	if ((err = glGetError()) != GL_NO_ERROR)
@@ -276,9 +275,7 @@ void Particles::addGravityPoint()
 		Vec3 projected = camera.unProjectToOrigin(mouseX, mouseY, projMat);
 		if (std::isnan(projected.x) || std::isnan(projected.y) || std::isnan(projected.z))
 		{
-			if (!isGravityStatic)
-				gravityPoints.push_back(gravityPoints[0]);// last known point
-			//else woopsie doopsie
+			;
 		}
 		else
 			gravityPoints.push_back(projected);
@@ -406,4 +403,9 @@ void Particles::clear()
 	shader = nullptr;
 	std::cout << "Cleared Particles" << std::endl;
 	clProgram::clear();
+}
+
+void Particles::updateProjMat()
+{
+		projMat = Matrix::createProjMatrix(FOV, (float)appWindow::getWindowWidth() / (float)appWindow::getWindowHeight(), NEAR, FAR);
 }

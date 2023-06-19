@@ -10,7 +10,6 @@ FILES = main.cpp \
 		Vec3.cpp \
 		clProgram.cpp \
 		Particles.cpp \
-		Line.cpp \
 		appWindow.cpp
 
 OBJ = $(addprefix obj/,$(FILES:.cpp=.o))
@@ -18,13 +17,13 @@ OBJ = $(addprefix obj/,$(FILES:.cpp=.o))
 EXTERNAL_LIBS = glew
 
 #linkage
-LIBS = -lglfw -lX11 -lXrandr -lXinerama -lXi -lXxf86vm -lXcursor -lGL -lpthread -ldl `pkg-config --libs $(EXTERNAL_LIBS)` -lm /sgoinfre/goinfre/Perso/nallani/opencl/usr/lib/x86_64-linux-gnu/libOpenCL.so
+LIBS = -lglfw -lX11 -lXrandr -lXinerama -lXi -lXxf86vm -lXcursor -lGL -lpthread -ldl `pkg-config --libs $(EXTERNAL_LIBS)` -lm -lOpenCL
 
 # 14 is fine for now, might need to upgrade ?
 CXXFLAGS = -std=gnu++14 -Wall -Wextra
-CXXFLAGS += -O3 #GNU debugger
-CXXFLAGS += -fno-omit-frame-pointer #linux profiler
-CXXFLAGS += -Wno-deprecated-declarations # hide usleep deprecated warning
+CXXFLAGS += -O3 #better optimization
+#CXXFLAGS += -fno-omit-frame-pointer #linux profiler
+#CXXFLAGS += -Wno-deprecated-declarations # hide usleep deprecated warning
 
 all: $(NAME)
 

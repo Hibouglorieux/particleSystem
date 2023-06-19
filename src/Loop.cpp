@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:25 by nathan            #+#    #+#             */
-/*   Updated: 2023/06/19 15:18:18 by nathan           ###   ########.fr       */
+/*   Updated: 2023/06/19 15:38:39 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,11 @@ void Loop::processInput(float deltaTime)
 	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_KP_3) == GLFW_PRESS)
 		Particles::changeDistanceLightStrength(40.f * deltaTime);
 
+	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_KP_4) == GLFW_PRESS)
+		Particles::getCamera().changeProjectionDistance(-10.f * deltaTime);
+	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_KP_6) == GLFW_PRESS)
+		Particles::getCamera().changeProjectionDistance(10.f * deltaTime);
+
 	double oldMouseX = mouseX;
 	double oldMouseY = mouseY;
 	Particles::setCurrentMouse(mouseX, mouseY);
@@ -126,8 +131,17 @@ void Loop::keyCallback(GLFWwindow* window, int key, int scancode, int action, in
 		return;
 	if (key == GLFW_KEY_F && action == GLFW_PRESS)
 		Particles::getCamera().freeMovement();
+	if (key == GLFW_KEY_L && action == GLFW_PRESS)
+		Particles::getCamera().reset(); // bad method name, is actually locking camera into 'sphere' view
 	if (key == GLFW_KEY_R && action == GLFW_PRESS)
-		Particles::getCamera().reset();
+	{
+		Particles::getCamera().freeMovement();
+		Particles::initializeParticlesPos(SQUARE);
+		Particles::removeGravityPoints();
+		Particles::changeDistanceLightStrength(0);
+		Particles::getCamera().changeProjectionDistance(0);
+		Particles::getCamera().isScalingWithDistance = false;
+	}
 	if (key == GLFW_KEY_G && action == GLFW_PRESS)
 		Particles::gravityOnOff();
 	if (key == GLFW_KEY_O && action == GLFW_PRESS)
@@ -146,12 +160,8 @@ void Loop::keyCallback(GLFWwindow* window, int key, int scancode, int action, in
 		Particles::invertColors();
 	if (key == GLFW_KEY_KP_2 && action == GLFW_PRESS)
 		Particles::changeDistanceLightStrength(0);
-	if (key == GLFW_KEY_KP_4 && action == GLFW_PRESS)
-		Particles::getCamera().changeProjectionDistance(-1);
 	if (key == GLFW_KEY_KP_5 && action == GLFW_PRESS)
 		Particles::getCamera().changeProjectionDistance(0);
-	if (key == GLFW_KEY_KP_6 && action == GLFW_PRESS)
-		Particles::getCamera().changeProjectionDistance(1);
 	if (key == GLFW_KEY_KP_8 && action == GLFW_PRESS)
 		Particles::getCamera().isScalingWithDistance = !Particles::getCamera().isScalingWithDistance;
 }

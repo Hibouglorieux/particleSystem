@@ -6,7 +6,7 @@
 /*   By: nathan <nallani@student.s19.be>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 01:55:24 by nathan            #+#    #+#             */
-/*   Updated: 2021/01/09 04:22:15 by nathan           ###   ########.fr       */
+/*   Updated: 2023/06/19 15:54:45 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ public:
 	static int getWindowWidth();
 	static int getWindowHeight();
 private:
+	static void resizeCallback(GLFWwindow* window, int width, int height);
 	static bool initialized;
 	static GLFWwindow* window;
 	static const GLFWvidmode* mode;

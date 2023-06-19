@@ -6,16 +6,17 @@
 /*   By: nathan <nallani@student.s19.be>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 01:55:16 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/15 10:50:10 by nallani          ###   ########.fr       */
+/*   Updated: 2023/06/19 16:00:30 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "appWindow.hpp"
+#include "Particles.hpp" // cheap fix for updateProjMat
 
 #define WIDTH 1920
 #define HEIGHT 1080
-//#define FULLSCREEN
+#define FULLSCREEN
 
 bool appWindow::initialized = false;
 GLFWwindow* appWindow::window = nullptr;
@@ -55,8 +56,18 @@ int appWindow::init()
 		glfwMakeContextCurrent(window);
 		glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE); // enable sticky keys
 	}
+	glfwSetFramebufferSizeCallback(window, &resizeCallback);
 	initialized = true;
 	return (1);
+}
+
+void appWindow::resizeCallback(GLFWwindow* window, int width, int height)
+{
+	if (window != nullptr) // avoid warning
+	{
+		glViewport(0, 0, width, height);
+		Particles::updateProjMat();
+	}
 }
 
 void	appWindow::getWindowSize(int* width, int* height)

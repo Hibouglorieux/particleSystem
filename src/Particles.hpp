@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 03:00:37 by nathan            #+#    #+#             */
-/*   Updated: 2022/07/15 15:24:26 by nallani          ###   ########.fr       */
+/*   Updated: 2023/06/19 15:59:27 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ public:
 	static Camera& getCamera(){return camera;}
 	static void clear();
 	static Matrix getProjMat() {return projMat;}// TODO remove
+	static void updateProjMat();
 	static void setCurrentMouse(float mouse_x, float mouse_y);
 	static void lockGravityPoint(bool isGravityStatic);
 	static void changeSpeed(float value);
