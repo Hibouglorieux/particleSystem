@@ -6,7 +6,7 @@
 /*   By: nathan <unkown@noaddress.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/24 15:40:25 by nathan            #+#    #+#             */
-/*   Updated: 2023/06/19 15:00:33 by nathan           ###   ########.fr       */
+/*   Updated: 2023/06/19 15:18:18 by nathan           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ double Loop::fpsRefreshTime = 0.0;
 unsigned char Loop::frameCount = 0;
 
 #define SEC_TO_MICROSEC 1000000
-#define CAMERA_MOUVEMENT_SPEED 0.2f
+#define CAMERA_MOUVEMENT_SPEED 100.f
 #define REFRESH_FPS_RATE 1.0f
 
 
@@ -38,14 +38,13 @@ void Loop::loop()
 	glfwGetCursorPos(appWindow::getWindow(), &mouseX, &mouseY);
 	glfwSetKeyCallback(appWindow::getWindow(), Loop::keyCallback);
 	glfwSetScrollCallback(appWindow::getWindow(), Loop::scrollCallBack);
-	//glEnable(GL_DEPTH_TEST);
 	glDisable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(appWindow::getWindow()))
 	{
 		double currentTimer = glfwGetTime();
 		frameCount++;
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		processInput();
+		processInput(frameTime);
 
 		Particles::update((float)frameTime);
 		Particles::draw();	
@@ -54,25 +53,26 @@ void Loop::loop()
 		glfwSwapBuffers(appWindow::getWindow());
 
 		frameTime = glfwGetTime() - currentTimer;
+
+		// actualize the display of the fps every last REFRESH_FPS_RATE seconds
 		if (fpsRefreshTime + REFRESH_FPS_RATE < currentTimer)
 		{
 			std::stringstream ss;
 			double fps = (float)frameCount / (currentTimer - fpsRefreshTime);
-			if (fps > 60)
-				fps = 60;
 			ss << std::setprecision(3) << fps;
-			glfwSetWindowTitle(appWindow::getWindow(), std::string(std::string("Humangl ") + ss.str()).c_str());
+			glfwSetWindowTitle(appWindow::getWindow(), std::string(std::string("particleSystem ") + ss.str()).c_str());
 			frameCount = 0;
 			fpsRefreshTime = currentTimer;
 		}
 	}
 }
 
-void Loop::processInput()
+void Loop::processInput(float deltaTime)
 {
 	glfwPollEvents();
 	bool forward, backward, left, right;
 	forward = backward = left = right = false;
+
 	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(appWindow::getWindow(), true);
 	// camera
@@ -85,21 +85,22 @@ void Loop::processInput()
 	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_A) == GLFW_PRESS)
 		left = true;
 	bool shift = glfwGetKey(appWindow::getWindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ? true : false;
-	Particles::getCamera().move(forward, backward, left, right, (shift == true ? 2 : 1)* CAMERA_MOUVEMENT_SPEED);
+	Particles::getCamera().move(forward, backward, left, right, (shift == true ? 2 : 1)* CAMERA_MOUVEMENT_SPEED * deltaTime);
+
 	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
-		Particles::getCamera().moveUp();
+		Particles::getCamera().moveUp(50 * deltaTime);
 	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-		Particles::getCamera().moveDown();
+		Particles::getCamera().moveDown(50 * deltaTime);
 
 	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_UP) == GLFW_PRESS)
-		Particles::changeSpeed(1);
+		Particles::changeSpeed(100 * deltaTime);
 	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_DOWN) == GLFW_PRESS)
-		Particles::changeSpeed(-1);
+		Particles::changeSpeed(-100 * deltaTime);
 
 	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_KP_1) == GLFW_PRESS)
-		Particles::changeDistanceLightStrength(-1.f);
+		Particles::changeDistanceLightStrength(-40.f * deltaTime);
 	if (glfwGetKey(appWindow::getWindow(), GLFW_KEY_KP_3) == GLFW_PRESS)
-		Particles::changeDistanceLightStrength(1.f);
+		Particles::changeDistanceLightStrength(40.f * deltaTime);
 
 	double oldMouseX = mouseX;
 	double oldMouseY = mouseY;
